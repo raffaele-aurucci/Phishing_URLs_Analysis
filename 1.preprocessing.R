@@ -1,6 +1,9 @@
 # PRE-PROCESSING REAL DATASET
 # Author: Raffaele Aurucci
 
+# install.packages("moments")
+
+library(moments)
 library(utils)
 
 df <- read.csv('./datasets/Phishing_URL_Dataset_3.csv', sep = ";")
@@ -30,6 +33,19 @@ df <- df[!duplicated(df), ]
 # reset indices
 row.names(df) <- NULL
 
+# moda function
+moda <- function(x) {
+  ux <- unique(x)
+  ux[which.max(tabulate(match(x, ux)))]
+}
+
+# skewness function
+skw <- function(x) {
+  n <- length(x)
+  m2 <- (n-1)*var(x)/n 
+  m3 <- (sum((x - mean(x))^3))/n
+  m3 / (m2^1.5)
+}
 
 # ------------------------------------------------------------------------------
 # ATTRIBUTE 'label'
@@ -68,20 +84,76 @@ tld_table <- table(df$TLD)
 tld_df <- as.data.frame(tld_table)
 tld_filtered <- tld_df[tld_df$Freq >= 100, ]
 
-barplot(tld_filtered$Freq, names.arg = tld_filtered$Var1, col = 'lightblue',
-        main = 'Istogramma TLD',
-        ylab = 'Frequenza', xlab = 'TLD')
+# the most frequent TLD category is 'com'
+tld_max = moda(df$TLD)
+tld_max
 
-# the most frequent TLD category is .com
 filtered_df <- df[df$TLD %in% tld_filtered$Var1, ]
-label_counts <- table(filtered_df$TLD, filtered_df$label)
+label_counts <- prop.table(table(filtered_df$label, filtered_df$TLD))
 label_counts
 
-plot(label_counts, col = c('orange', 'lightblue'), 
-     main = 'Tabella di contingenza TLD',
-     ylab = 'Label', xlab = 'TLD')
+barplot(label_counts, col = c('orange', 'lightblue'), 
+     main = 'Frequenza relativa congiunta TLD',
+     legend = c('phishing', 'legitimate'))
 
 # TODO: study in deep
 
 # ------------------------------------------------------------------------------
 # ATTRIBUTE 'URLLenght'
+
+summary(df$URLLength)
+
+breaks <- c(0, 10, 20, 30, 40, 50, 1000) 
+
+j_freq <- table(df$label, cut(df$URLLength, breaks = breaks))
+j_freq_rel <- prop.table(j_freq)
+
+barplot(j_freq_rel, col = c("orange", "lightblue"),
+        legend = c("phishing", "legitimate"),
+        main = "Frequenza relativa congiunta URLLenght")
+
+# outliers
+df_0 <- df[df$label == 0, ]
+df_1 <- df[df$label == 1, ]
+
+summary(df_0$URLLength)
+summary(df_1$URLLength)
+
+boxplot(df_0$URLLength, df_1$URLLength, 
+        ylim = c(min(df_0$URLLength), quantile(df_0$URLLength, 0.95)),
+        main = 'Boxplot URLLenght', col = c('orange', 'lightblue'),
+        names = c('phishing', 'legitimate'))
+
+
+# overlap median
+
+IQR_0 <- quantile(df_0$URLLength, 0.75) - quantile(df_0$URLLength, 0.25)
+# lower bound
+M1_0 <- quantile(df_0$URLLength, 0.5) - 1.57*IQR_0/sqrt(length(df_0$URLLength))
+# upper bound
+M2_0 <- quantile(df_0$URLLength, 0.5) + 1.57*IQR_0/sqrt(length(df_0$URLLength))
+
+IQR_1 <- quantile(df_1$URLLength, 0.75) - quantile(df_1$URLLength, 0.25)
+# lower bound
+M1_1 <- quantile(df_1$URLLength, 0.5) - 1.57*IQR_1/sqrt(length(df_1$URLLength))
+# upper bound
+M2_1 <- quantile(df_1$URLLength, 0.5) + 1.57*IQR_1/sqrt(length(df_1$URLLength))
+
+# no overlap: the median is different with a level signification of 5%
+c(M1_0, M2_0)
+c(M1_1, M2_1)
+
+# dispersion
+var(df$URLLength)
+sd(df$URLLength)
+
+# distribution form
+# skw(df$URLLength)       # (gamma > 0) right skewed
+# kurtosis(df$URLLength)  # leptokurtic
+
+# ------------------------------------------------------------------------------
+# ATTRIBUTE 'DomainLenght'
+
+# ------------------------------------------------------------------------------
+
+# correlations
