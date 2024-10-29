@@ -148,8 +148,18 @@ var(df$URLLength)
 sd(df$URLLength)
 
 # distribution form
-# skw(df$URLLength)       # (gamma > 0) right skewed
-# kurtosis(df$URLLength)  # leptokurtic
+skw_value <- skewness(df$URLLength)       # (gamma > 0) right skewed
+kurtosis_value <- kurtosis(df$URLLength)  # leptokurtic
+
+n <- length(df$URLLength)
+h_sturges <- (max(df$URLLength) - min(df$URLLength)) / sqrt(n)
+density_sturges <- density(df$URLLength, bw = h_sturges)
+
+plot(density_sturges, main = "Forma della distribuzione URLLength", 
+     col = "orange", lwd = 2)
+legend("topright", legend = c(paste("Skewness:", round(skw_value, 2)), 
+                              paste("Kurtosis:", round(kurtosis_value, 2))), 
+       bty = "n", col = "black", cex = 0.8)
 
 # ------------------------------------------------------------------------------
 # ATTRIBUTE 'DomainLenght'
