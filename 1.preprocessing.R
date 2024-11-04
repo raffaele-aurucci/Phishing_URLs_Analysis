@@ -293,16 +293,78 @@ df <- subset(df, select = -IsDomainIP)
 # ------------------------------------------------------------------------------
 # ATTRIBUTE 'URLSimilarityIndex'
 
-summary(df_0$URLSimilarityIndex)
-summary(df_1$URLSimilarityIndex)
+summary(df$URLSimilarityIndex)
 
 breaks <- c(0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100) 
 
 j_freq <- table(df$label, cut(df$URLSimilarityIndex, breaks = breaks))
 j_freq_rel <- prop.table(j_freq)
+j_freq_rel
 
 barplot(j_freq_rel, col = c("orange", "lightblue"),
         legend = c("phishing", "legitimate"),
         main = "Frequenza relativa congiunta URLSimilarityIndex")
 
+
+# OUTLIERS
+summary(df_0$URLSimilarityIndex)
+summary(df_1$URLSimilarityIndex)
+
+boxplot(df$URLSimilarityIndex, main = 'Boxplot URLSimilarityIndex', 
+        col = 'orange')
+
+# DISPERSION 
+var(df$URLSimilarityIndex)
+sd(df$URLSimilarityIndex)
+
+# CORRELATIONS WITH TARGET: ~0.86
+cor(df$URLSimilarityIndex, df$label)
+
+# values from 0 to 100
+
+# delete this feature because:
+# It's an heuristic calculated by authors of dataset
+# It depends to a repository of Legitimate URL (dataset specific) 
+# It's strongly discriminating
+# 57% of data is setting to 100 (the legitimate URL is into previous repository)
+
+df <- subset(df, select = -URLSimilarityIndex)
+#-------------------------------------------------------------------------------
+# ATTRIBUTE 'CharContinuationRate'
+
+# It's ambiguous feature, calculated by an heuristic not detailed
+
+#-------------------------------------------------------------------------------
+# ATTRIBUTE 'TLDLegitimateProb'
+
+# delete this feature because:
+# It's an heuristic calculated by authors of dataset
+# It depends to a repository of Legitimate URL (dataset specific) 
+# There are constant values for each TLD (relative frequency of TLD)
+
+#-------------------------------------------------------------------------------
+# ATTRIBUTE 'CharContinuationRate'
+
+# delete this feature because:
+# It's an heuristic calculated by authors of dataset
+# It depends to a repository of Phishing/Legitimate URL (dataset specific)
+
+#-------------------------------------------------------------------------------
+# ATTRIBUTE 'URLCharProb'
+
+# It's ambiguous feature, calculated by an heuristic not detailed 
+# (probability not esplicated)
+# It depends to a repository of Phishing/Legitimate URL (dataset specific)
+
+#-------------------------------------------------------------------------------
+# ATTRIBUTE 'URLTitleMatchScore'
+
+# ok generalizable
+
+#-------------------------------------------------------------------------------
+# ATTRIBUTE 'DomainTitleMatchScore'
+
+# ok generalizable
+
+#-------------------------------------------------------------------------------
 # correlations
