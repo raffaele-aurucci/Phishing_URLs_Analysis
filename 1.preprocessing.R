@@ -47,6 +47,12 @@ moda <- function(x) {
 
 table(df$label)
 
+# undersampling to balance dataset
+indices_label_1 <- which(df$label == 1)
+indices_to_remove <- sample(indices_label_1, 3427)
+df <- df[-indices_to_remove, ]
+row.names(df) <- NULL
+
 df_0 <- df[df$label == 0, ]
 df_1 <- df[df$label == 1, ]
 
@@ -63,7 +69,7 @@ df <- subset(df, select = -FILENAME)
 df <- df[!duplicated(df$URL), ]
 
 # delete attribute because have only unique value
-# df <- subset(df, select = -URL)
+df <- subset(df, select = -URL)
 
 # ------------------------------------------------------------------------------
 # ATTRIBUTE 'Domain'
@@ -75,6 +81,7 @@ df <- subset(df, select = -Domain)
 # ATTRIBUTE 'TLD'
 
 tld_table <- table(df$TLD)
+tld_table
 
 tld_df <- as.data.frame(tld_table)
 tld_filtered <- tld_df[tld_df$Freq >= 100, ]
@@ -91,7 +98,61 @@ barplot(label_counts, col = c('orange', 'lightblue'),
      main = 'Frequenza relativa congiunta TLD',
      legend = c('phishing', 'legitimate'))
 
-# TODO: study in deep
+# TARGET ENCODING
+# transform this feature with probability of legitimate TLD
+# for each TLD: 
+#   (sum of value label) / (sum of TLD element)
+
+tld_encoding <- aggregate(label ~ TLD, data = df, FUN = mean)
+colnames(tld_encoding)[2] <- "TLDEncoding"
+df <- merge(df, tld_encoding, by = "TLD", all.x = TRUE)
+df <- df[, -which(names(df) == "TLD")]
+df <- df[, c(1, 2, ncol(df), 3:(ncol(df) - 1))]
+
+df_0 <- df[df$label == 0, ]
+df_1 <- df[df$label == 1, ]
+
+# DISPERSION
+summary(df$TLDEncoding)
+var(df$TLDEncoding)
+sd(df$TLDEncoding)
+
+# DISTRIBUTION FORM FOR Phishing AND Legitimate
+skw_value_0 <- skewness(df_0$TLDEncoding)
+kurtosis_value_0 <- kurtosis(df_0$TLDEncoding)
+
+skw_value_1 <- skewness(df_1$TLDEncoding)
+kurtosis_value_1 <- kurtosis(df_1$TLDEncoding)
+
+density_0 <- density(df_0$TLDEncoding)
+density_1 <- density(df_1$TLDEncoding)
+
+# 1 row, 2 columns
+par(mfrow = c(1, 2))
+
+# phishing
+plot(density_0, main = "phishing",
+     col = "orange", lwd = 2, xlab = "TLDEncoding", ylab = "Density",
+     ylim = c(0, max(density_0$y)))
+legend("topright",
+       legend = c(paste("Skewness:", round(skw_value_0, 2)),
+                  paste("Kurtosis:", round(kurtosis_value_0, 2))),
+       col = "orange", lwd = 2, bty = "n", cex = 0.8)
+
+# legitimate
+plot(density_1, main = "legitimate",
+     col = "lightblue", lwd = 2, xlab = "TLDEncoding", ylab = "Density",
+     ylim = c(0, max(density_1$y)))
+legend("topright",
+       legend = c(paste("Skewness:", round(skw_value_1, 2)),
+                  paste("Kurtosis:", round(kurtosis_value_1, 2))),
+       col = "lightblue", lwd = 2, bty = "n", cex = 0.8)
+
+# reset plot layout
+par(mfrow = c(1, 1))
+
+# CORRELATION WITH TARGET
+cor(df$TLDEncoding, df$label)
 
 # ------------------------------------------------------------------------------
 # ATTRIBUTE 'URLLenght'
@@ -191,6 +252,9 @@ legend("topright",
 # reset plot layout
 par(mfrow = c(1, 1))
 
+# CORRELATION WITH TARGET
+cor(df$URLLength, df$label)
+
 # ------------------------------------------------------------------------------
 # ATTRIBUTE 'DomainLenght'
 
@@ -283,10 +347,15 @@ legend("topright",
 
 # reset plot layout
 par(mfrow = c(1, 1))
+
+# CORRELATION WITH TARGET
+cor(df$DomainLength, df$label)
 # ------------------------------------------------------------------------------
 # ATTRIBUTE 'IsDomainIP'
 
 table(df$IsDomainIP)
+
+cor(df$IsDomainIP, df$label)
 
 # delete attribute because have only 81 value setting to 1
 df <- subset(df, select = -IsDomainIP)
@@ -310,14 +379,12 @@ barplot(j_freq_rel, col = c("orange", "lightblue"),
 summary(df_0$URLSimilarityIndex)
 summary(df_1$URLSimilarityIndex)
 
-boxplot(df$URLSimilarityIndex, main = 'Boxplot URLSimilarityIndex', 
-        col = 'orange')
 
 # DISPERSION 
 var(df$URLSimilarityIndex)
 sd(df$URLSimilarityIndex)
 
-# CORRELATIONS WITH TARGET: ~0.86
+# CORRELATIONS WITH TARGET: ~0.85
 cor(df$URLSimilarityIndex, df$label)
 
 # values from 0 to 100
@@ -326,14 +393,17 @@ cor(df$URLSimilarityIndex, df$label)
 # It's an heuristic calculated by authors of dataset
 # It depends to a repository of Legitimate URL (dataset specific) 
 # It's strongly discriminating
-# 57% of data is setting to 100 (the legitimate URL is into previous repository)
+# 50% of data is setting to 100 (the legitimate URL is into previous repository)
 
 df <- subset(df, select = -URLSimilarityIndex)
 #-------------------------------------------------------------------------------
 # ATTRIBUTE 'CharContinuationRate'
 
-# It's ambiguous feature, calculated by an heuristic not detailed
+# delete this feature because:
+# It's an heuristic not detailed calculated by authors of dataset 
+# It depends to a repository of Phishing/Legitimate URL (dataset specific)
 
+df <- subset(df, select = -CharContinuationRate)
 #-------------------------------------------------------------------------------
 # ATTRIBUTE 'TLDLegitimateProb'
 
@@ -342,13 +412,7 @@ df <- subset(df, select = -URLSimilarityIndex)
 # It depends to a repository of Legitimate URL (dataset specific) 
 # There are constant values for each TLD (relative frequency of TLD)
 
-#-------------------------------------------------------------------------------
-# ATTRIBUTE 'CharContinuationRate'
-
-# delete this feature because:
-# It's an heuristic calculated by authors of dataset
-# It depends to a repository of Phishing/Legitimate URL (dataset specific)
-
+df <- subset(df, select = -TLDLegitimateProb)
 #-------------------------------------------------------------------------------
 # ATTRIBUTE 'URLCharProb'
 
@@ -356,15 +420,190 @@ df <- subset(df, select = -URLSimilarityIndex)
 # (probability not esplicated)
 # It depends to a repository of Phishing/Legitimate URL (dataset specific)
 
+df <- subset(df, select = -URLCharProb)
 #-------------------------------------------------------------------------------
 # ATTRIBUTE 'URLTitleMatchScore'
 
-# ok generalizable
+summary(df$URLTitleMatchScore)
 
+breaks <- c(-1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100) 
+
+labels <- c("[0,10]", "(10-20]", "(20-30]", "(30-40]", "(40-50]", "(50-60]", 
+            "(60-70]", "(70-80]", "(80-90]", "(90-100]")
+
+j_freq <- table(df$label, cut(df$URLTitleMatchScore, breaks = breaks, 
+                              labels = labels))
+j_freq_rel <- prop.table(j_freq)
+
+barplot(j_freq_rel, col = c("orange", "lightblue"),
+        legend = c("phishing", "legitimate"),
+        main = "Frequenza relativa congiunta URLTitleMatchScore")
+
+# transform this feature follow its score value
+# 0  -> score == 0      (no match)
+# 1  -> 0 < score < 100 (at least a match)
+# 2  -> score == 100.   (complete match)
+
+# df$URLTitleMatchScore[df$URLTitleMatchScore == 0] <- 0
+# df$URLTitleMatchScore[df$URLTitleMatchScore > 0 & df$URLTitleMatchScore < 100] <- 1
+# df$URLTitleMatchScore[df$URLTitleMatchScore == 100] <- 2
+# 
+# j_freq <- table(df$label, df$URLTitleMatchScore)
+# j_freq_rel <- prop.table(j_freq)
+# j_freq_rel
+# 
+# barplot(j_freq_rel, col = c("orange", "lightblue"),
+#         legend = c("phishing", "legitimate"),
+#         main = "Frequenza relativa congiunta URLTitleMatchScore",
+#         names.arg = c('score = 0', '0 < score < 100', 'score = 100'))
+
+# OUTLIERS
+summary(df_0$URLTitleMatchScore)
+summary(df_1$URLTitleMatchScore)
+
+boxplot(df_0$URLTitleMatchScore, df_1$URLTitleMatchScore,
+        main = 'Boxplot URLTitleMatchScore', col = c('orange', 'lightblue'),
+        names = c('phishing', 'legitimate'))
+
+# DISPERSION 
+var(df$URLTitleMatchScore)
+sd(df$URLTitleMatchScore)
+
+# DISTRIBUTION FORM FOR Phishing AND Legitimate
+skw_value_0 <- skewness(df_0$URLTitleMatchScore)
+kurtosis_value_0 <- kurtosis(df_0$URLTitleMatchScore)
+
+skw_value_1 <- skewness(df_1$URLTitleMatchScore)
+kurtosis_value_1 <- kurtosis(df_1$URLTitleMatchScore)
+
+density_0 <- density(df_0$URLTitleMatchScore)
+density_1 <- density(df_1$URLTitleMatchScore)
+
+# 1 row, 2 columns
+par(mfrow = c(1, 2))  
+
+# phishing
+plot(density_0, main = "phishing",
+     col = "orange", lwd = 2, xlab = "URLTitleMatchScore", ylab = "Density",
+     ylim = c(0, max(density_0$y)))
+legend("topright", 
+       legend = c(paste("Skewness:", round(skw_value_0, 2)), 
+                  paste("Kurtosis:", round(kurtosis_value_0, 2))), 
+       col = "orange", lwd = 2, bty = "n", cex = 0.8)
+
+# legitimate
+plot(density_1, main = "legitimate",
+     col = "lightblue", lwd = 2, xlab = "URLTitleMatchScore", ylab = "Density",
+     ylim = c(0, max(density_1$y)))
+legend("topright", 
+       legend = c(paste("Skewness:", round(skw_value_1, 2)), 
+                  paste("Kurtosis:", round(kurtosis_value_1, 2))), 
+       col = "lightblue", lwd = 2, bty = "n", cex = 0.8)
+
+# reset plot layout
+par(mfrow = c(1, 1))
+
+# CORRELATION WITH TARGET
+cor(df$URLTitleMatchScore, df$label)
 #-------------------------------------------------------------------------------
 # ATTRIBUTE 'DomainTitleMatchScore'
 
-# ok generalizable
+summary(df$DomainTitleMatchScore)
 
+breaks <- c(-1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100) 
+
+labels <- c("[0,10]", "(10-20]", "(20-30]", "(30-40]", "(40-50]", "(50-60]", 
+            "(60-70]", "(70-80]", "(80-90]", "(90-100]")
+
+j_freq <- table(df$label, cut(df$DomainTitleMatchScore, breaks = breaks, 
+                              labels = labels))
+j_freq_rel <- prop.table(j_freq)
+
+barplot(j_freq_rel, col = c("orange", "lightblue"),
+        legend = c("phishing", "legitimate"),
+        main = "Frequenza relativa congiunta DomainTitleMatchScore")
+
+# transform this feature follow its score value
+# 0  -> score == 0      (no match)
+# 1  -> 0 < score < 100 (at least a match)
+# 2  -> score == 100.   (complete match)
+
+# df$DomainTitleMatchScore[df$DomainTitleMatchScore == 0] <- 0
+# df$DomainTitleMatchScore[df$DomainTitleMatchScore > 0 & df$DomainTitleMatchScore < 100] <- 1
+# df$DomainTitleMatchScore[df$DomainTitleMatchScore == 100] <- 2
+# 
+# j_freq <- table(df$label, df$DomainTitleMatchScore)
+# j_freq_rel <- prop.table(j_freq)
+# j_freq_rel
+# 
+# barplot(j_freq_rel, col = c("orange", "lightblue"),
+#         legend = c("phishing", "legitimate"),
+#         main = "Frequenza relativa congiunta DomainTitleMatchScore",
+#         names.arg = c('score = 0', '0 < score < 100', 'score = 100'))
+
+# OUTLIERS
+summary(df_0$DomainTitleMatchScore)
+summary(df_1$DomainTitleMatchScore)
+
+boxplot(df_0$DomainTitleMatchScore, df_1$DomainTitleMatchScore,
+        main = 'Boxplot DomainTitleMatchScore', col = c('orange', 'lightblue'),
+        names = c('phishing', 'legitimate'))
+
+# DISPERSION 
+var(df$DomainTitleMatchScore)
+sd(df$DomainTitleMatchScore)
+
+# DISTRIBUTION FORM FOR Phishing AND Legitimate
+skw_value_0 <- skewness(df_0$DomainTitleMatchScore)
+kurtosis_value_0 <- kurtosis(df_0$DomainTitleMatchScore)
+
+skw_value_1 <- skewness(df_1$DomainTitleMatchScore)
+kurtosis_value_1 <- kurtosis(df_1$DomainTitleMatchScore)
+
+density_0 <- density(df_0$DomainTitleMatchScore)
+density_1 <- density(df_1$DomainTitleMatchScore)
+
+# 1 row, 2 columns
+par(mfrow = c(1, 2))  
+
+# phishing
+plot(density_0, main = "phishing",
+     col = "orange", lwd = 2, xlab = "DomainTitleMatchScore", ylab = "Density",
+     ylim = c(0, max(density_0$y)))
+legend("topright", 
+       legend = c(paste("Skewness:", round(skw_value_0, 2)), 
+                  paste("Kurtosis:", round(kurtosis_value_0, 2))), 
+       col = "orange", lwd = 2, bty = "n", cex = 0.8)
+
+# legitimate
+plot(density_1, main = "legitimate",
+     col = "lightblue", lwd = 2, xlab = "DomainTitleMatchScore", ylab = "Density",
+     ylim = c(0, max(density_1$y)))
+legend("topright", 
+       legend = c(paste("Skewness:", round(skw_value_1, 2)), 
+                  paste("Kurtosis:", round(kurtosis_value_1, 2))), 
+       col = "lightblue", lwd = 2, bty = "n", cex = 0.8)
+
+# reset plot layout
+par(mfrow = c(1, 1))
+
+# CORRELATION WITH TARGET
+cor(df$DomainTitleMatchScore, df$label)
+
+# TODO: study correlation with URLTitleMatchScore
 #-------------------------------------------------------------------------------
-# correlations
+# ATTRIBUTE 'TLDLenght'
+
+summary(df$TLDLength)
+
+j_freq <- table(df$label, df$TLDLength)
+j_freq_rel <- prop.table(j_freq)
+
+barplot(j_freq_rel, col = c("orange", "lightblue"),
+        legend = c("phishing", "legitimate"),
+        main = "Frequenza relativa congiunta TLDLength")
+#-------------------------------------------------------------------------------
+# TODO: study correlations with label 
+
+
+table(df$HasTitle)
