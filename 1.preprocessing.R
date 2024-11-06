@@ -117,6 +117,19 @@ summary(df$TLDEncoding)
 var(df$TLDEncoding)
 sd(df$TLDEncoding)
 
+# DISTRIBUTION
+breaks <- c(-1, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0)
+
+labels <- c("[0-0.1]", "(0.1-0.2]", "(0.2-0.3]", "(0.3-0.4]", "(0.4-0.5]",
+            "(0.5-0.6]", "(0.6-0.7]", "(0.7-0.8]", "(0.8-0.9]", "(0.9-1.0]")
+ 
+j_freq <- table(df$label, cut(df$TLDEncoding, breaks = breaks, labels = labels))
+j_freq_rel <- prop.table(j_freq)
+
+barplot(j_freq_rel, col = c("orange", "lightblue"),
+        legend = c("phishing", "legitimate"),
+        main = "Frequenza relativa congiunta TLDEncoding")
+
 # DISTRIBUTION FORM FOR Phishing AND Legitimate
 skw_value_0 <- skewness(df_0$TLDEncoding)
 kurtosis_value_0 <- kurtosis(df_0$TLDEncoding)
@@ -176,6 +189,40 @@ boxplot(df_0$URLLength, df_1$URLLength,
         ylim = c(min(df_0$URLLength), quantile(df_0$URLLength, 0.95)),
         main = 'Boxplot URLLenght', col = c('orange', 'lightblue'),
         names = c('phishing', 'legitimate'))
+
+# IQR FOR 'URLLength'
+q1 <- quantile(df$URLLength, 0.25)
+q3 <- quantile(df$URLLength, 0.75)
+iqr <- q3 - q1
+
+lower_bound <- q1 - 1.5 * iqr
+upper_bound <- q3 + 1.5 * iqr
+
+outliers <- sum(df$URLLength < lower_bound | df$URLLength > upper_bound)
+outliers
+
+# IQR FOR 'Phishing'
+q1_0 <- quantile(df_0$URLLength, 0.25)
+q3_0 <- quantile(df_0$URLLength, 0.75)
+iqr_0 <- q3_0 - q1_0
+
+lower_bound_0 <- q1_0 - 1.5 * iqr_0
+upper_bound_0 <- q3_0 + 1.5 * iqr_0
+
+outliers_0 <- sum(df_0$URLLength < lower_bound_0 | df_0$URLLength > upper_bound_0)
+
+# IQR FOR 'Legitimate'
+q1_1 <- quantile(df_1$URLLength, 0.25)
+q3_1 <- quantile(df_1$URLLength, 0.75)
+iqr_1 <- q3_1 - q1_1
+
+lower_bound_1 <- q1_1 - 1.5 * iqr_1
+upper_bound_1 <- q3_1 + 1.5 * iqr_1
+
+outliers_1 <- sum(df_1$URLLength < lower_bound_1 | df_1$URLLength > upper_bound_1)
+
+outliers_0  
+outliers_1 
 
 
 # OVERLAP MEDIAN
@@ -276,6 +323,40 @@ summary(df_1$DomainLength)
 boxplot(df_0$DomainLength, df_1$DomainLength,
         main = 'Boxplot DomainLength', col = c('orange', 'lightblue'),
         names = c('phishing', 'legitimate'))
+
+# IQR FOR 'DomainLength'
+q1 <- quantile(df$DomainLength, 0.25)
+q3 <- quantile(df$DomainLength, 0.75)
+iqr <- q3 - q1
+
+lower_bound <- q1 - 1.5 * iqr
+upper_bound <- q3 + 1.5 * iqr
+
+outliers <- sum(df$DomainLength < lower_bound | df$DomainLength > upper_bound)
+outliers
+
+# IQR FOR 'Phishing'
+q1_0 <- quantile(df_0$DomainLength, 0.25)
+q3_0 <- quantile(df_0$DomainLength, 0.75)
+iqr_0 <- q3_0 - q1_0
+
+lower_bound_0 <- q1_0 - 1.5 * iqr_0
+upper_bound_0 <- q3_0 + 1.5 * iqr_0
+
+outliers_0 <- sum(df_0$DomainLength < lower_bound_0 | df_0$DomainLength > upper_bound_0)
+
+# IQR FOR 'Legitimate'
+q1_1 <- quantile(df_1$DomainLength, 0.25)
+q3_1 <- quantile(df_1$DomainLength, 0.75)
+iqr_1 <- q3_1 - q1_1
+
+lower_bound_1 <- q1_1 - 1.5 * iqr_1
+upper_bound_1 <- q3_1 + 1.5 * iqr_1
+
+outliers_1 <- sum(df_1$DomainLength < lower_bound_1 | df_1$DomainLength > upper_bound_1)
+
+outliers_0  
+outliers_1 
 
 
 # OVERLAP MEDIAN
@@ -465,6 +546,40 @@ boxplot(df_0$URLTitleMatchScore, df_1$URLTitleMatchScore,
         main = 'Boxplot URLTitleMatchScore', col = c('orange', 'lightblue'),
         names = c('phishing', 'legitimate'))
 
+# IQR FOR 'URLTitleMatchScore'
+q1 <- quantile(df$URLTitleMatchScore, 0.25)
+q3 <- quantile(df$URLTitleMatchScore, 0.75)
+iqr <- q3 - q1
+
+lower_bound <- q1 - 1.5 * iqr
+upper_bound <- q3 + 1.5 * iqr
+
+outliers <- sum(df$URLTitleMatchScore < lower_bound | df$URLTitleMatchScore > upper_bound)
+outliers
+
+# IQR FOR 'Phishing'
+q1_0 <- quantile(df_0$URLTitleMatchScore, 0.25)
+q3_0 <- quantile(df_0$URLTitleMatchScore, 0.75)
+iqr_0 <- q3_0 - q1_0
+
+lower_bound_0 <- q1_0 - 1.5 * iqr_0
+upper_bound_0 <- q3_0 + 1.5 * iqr_0
+
+outliers_0 <- sum(df_0$URLTitleMatchScore < lower_bound_0 | df_0$URLTitleMatchScore > upper_bound_0)
+
+# IQR FOR 'Legitimate'
+q1_1 <- quantile(df_1$URLTitleMatchScore, 0.25)
+q3_1 <- quantile(df_1$URLTitleMatchScore, 0.75)
+iqr_1 <- q3_1 - q1_1
+
+lower_bound_1 <- q1_1 - 1.5 * iqr_1
+upper_bound_1 <- q3_1 + 1.5 * iqr_1
+
+outliers_1 <- sum(df_1$URLTitleMatchScore < lower_bound_1 | df_1$URLTitleMatchScore > upper_bound_1)
+
+outliers_0  
+outliers_1 
+
 # DISPERSION 
 var(df$URLTitleMatchScore)
 sd(df$URLTitleMatchScore)
@@ -549,6 +664,40 @@ boxplot(df_0$DomainTitleMatchScore, df_1$DomainTitleMatchScore,
         main = 'Boxplot DomainTitleMatchScore', col = c('orange', 'lightblue'),
         names = c('phishing', 'legitimate'))
 
+# IQR FOR 'DomainTitleMatchScore'
+q1 <- quantile(df$DomainTitleMatchScore, 0.25)
+q3 <- quantile(df$DomainTitleMatchScore, 0.75)
+iqr <- q3 - q1
+
+lower_bound <- q1 - 1.5 * iqr
+upper_bound <- q3 + 1.5 * iqr
+
+outliers <- sum(df$DomainTitleMatchScore < lower_bound | df$DomainTitleMatchScore > upper_bound)
+outliers
+
+# IQR FOR 'Phishing'
+q1_0 <- quantile(df_0$DomainTitleMatchScore, 0.25)
+q3_0 <- quantile(df_0$DomainTitleMatchScore, 0.75)
+iqr_0 <- q3_0 - q1_0
+
+lower_bound_0 <- q1_0 - 1.5 * iqr_0
+upper_bound_0 <- q3_0 + 1.5 * iqr_0
+
+outliers_0 <- sum(df_0$DomainTitleMatchScore < lower_bound_0 | df_0$DomainTitleMatchScore > upper_bound_0)
+
+# IQR FOR 'Legitimate'
+q1_1 <- quantile(df_1$DomainTitleMatchScore, 0.25)
+q3_1 <- quantile(df_1$DomainTitleMatchScore, 0.75)
+iqr_1 <- q3_1 - q1_1
+
+lower_bound_1 <- q1_1 - 1.5 * iqr_1
+upper_bound_1 <- q3_1 + 1.5 * iqr_1
+
+outliers_1 <- sum(df_1$DomainTitleMatchScore < lower_bound_1 | df_1$DomainTitleMatchScore > upper_bound_1)
+
+outliers_0  
+outliers_1 
+
 # DISPERSION 
 var(df$DomainTitleMatchScore)
 sd(df$DomainTitleMatchScore)
@@ -596,14 +745,200 @@ cor(df$DomainTitleMatchScore, df$label)
 
 summary(df$TLDLength)
 
-j_freq <- table(df$label, df$TLDLength)
+j_freq <- table(df$label, 
+                cut(df$TLDLength,
+                    breaks = c(1, 2, 3, 4, 13), 
+                    labels = c("2", "3", "4", "5-13"), 
+                    right = TRUE))
+
 j_freq_rel <- prop.table(j_freq)
 
 barplot(j_freq_rel, col = c("orange", "lightblue"),
         legend = c("phishing", "legitimate"),
         main = "Frequenza relativa congiunta TLDLength")
+
+# OUTLIERS
+summary(df_0$TLDLength)
+summary(df_1$TLDLength)
+
+boxplot(df_0$TLDLength, df_1$TLDLength,
+        main = 'Boxplot TLDLength', col = c('orange', 'lightblue'),
+        names = c('phishing', 'legitimate'))
+
+# OVERLAP MEDIAN
+IQR_0 <- quantile(df_0$TLDLength, 0.75) - quantile(df_0$TLDLength, 0.25)
+M1_0 <- quantile(df_0$TLDLength, 0.5) - 1.57*IQR_0/sqrt(length(df_0$TLDLength))
+M2_0 <- quantile(df_0$TLDLength, 0.5) + 1.57*IQR_0/sqrt(length(df_0$TLDLength))
+
+IQR_1 <- quantile(df_1$TLDLength, 0.75) - quantile(df_1$TLDLength, 0.25)
+M1_1 <- quantile(df_1$TLDLength, 0.5) - 1.57*IQR_1/sqrt(length(df_1$TLDLength))
+M2_1 <- quantile(df_1$TLDLength, 0.5) + 1.57*IQR_1/sqrt(length(df_1$TLDLength))
+
+# overlap: the median isn't different with a level signification of 5%
+c(M1_0, M2_0)
+c(M1_1, M2_1)
+
+# DISPERSION 
+var(df$TLDLength)
+sd(df$TLDLength)
+
+# DISTRIBUTION FORM FOR Phishing AND Legitimate
+skw_value_0 <- skewness(df_0$TLDLength)
+kurtosis_value_0 <- kurtosis(df_0$TLDLength)
+
+skw_value_1 <- skewness(df_1$TLDLength)
+kurtosis_value_1 <- kurtosis(df_1$TLDLength)
+
+density_0 <- density(df_0$TLDLength)
+density_1 <- density(df_1$TLDLength)
+
+# 1 row, 2 columns
+par(mfrow = c(1, 2))  
+
+# phishing
+plot(density_0, main = "phishing",
+     col = "orange", lwd = 2, xlab = "TLDLength", ylab = "Density",
+     ylim = c(0, max(density_0$y)))
+legend("topright", 
+       legend = c(paste("Skewness:", round(skw_value_0, 2)), 
+                  paste("Kurtosis:", round(kurtosis_value_0, 2))), 
+       col = "orange", lwd = 2, bty = "n", cex = 0.8)
+
+# legitimate
+plot(density_1, main = "legitimate",
+     col = "lightblue", lwd = 2, xlab = "TLDLength", ylab = "Density",
+     ylim = c(0, max(density_1$y)))
+legend("topright", 
+       legend = c(paste("Skewness:", round(skw_value_1, 2)), 
+                  paste("Kurtosis:", round(kurtosis_value_1, 2))), 
+       col = "lightblue", lwd = 2, bty = "n", cex = 0.8)
+
+# reset plot layout
+par(mfrow = c(1, 1))
+
+# CORRELATION WITH TARGET
+cor(df$TLDLength, df$label)
+
+# delete this feature becasue has lower variance, overlap median and corr = 0
+
+df <- subset(df, select = -TLDLength)
 #-------------------------------------------------------------------------------
+# ATTRIBUTE NoOfSubDomain
+
+summary(df$NoOfSubDomain)
+
+j_freq <- table(df$label, df$NoOfSubDomain)
+j_freq_rel <- prop.table(j_freq)
+
+barplot(j_freq_rel, col = c("orange", "lightblue"),
+        legend = c("phishing", "legitimate"),
+        main = "Frequenza relativa congiunta NoOfSubDomain")
+
+# OUTLIERS
+summary(df_0$NoOfSubDomain)
+summary(df_1$NoOfSubDomain)
+
+boxplot(df_0$NoOfSubDomain, df_1$NoOfSubDomain,
+        main = 'Boxplot NoOfSubDomain', col = c('orange', 'lightblue'),
+        names = c('phishing', 'legitimate'))
+
+# OVERLAP MEDIAN
+IQR_0 <- quantile(df_0$NoOfSubDomain, 0.75) - quantile(df_0$NoOfSubDomain, 0.25)
+M1_0 <- quantile(df_0$NoOfSubDomain, 0.5) - 1.57*IQR_0/sqrt(length(df_0$NoOfSubDomain))
+M2_0 <- quantile(df_0$NoOfSubDomain, 0.5) + 1.57*IQR_0/sqrt(length(df_0$NoOfSubDomain))
+
+IQR_1 <- quantile(df_1$NoOfSubDomain, 0.75) - quantile(df_1$NoOfSubDomain, 0.25)
+M1_1 <- quantile(df_1$NoOfSubDomain, 0.5) - 1.57*IQR_1/sqrt(length(df_1$NoOfSubDomain))
+M2_1 <- quantile(df_1$NoOfSubDomain, 0.5) + 1.57*IQR_1/sqrt(length(df_1$NoOfSubDomain))
+
+# overlap: the median isn't different with a level signification of 5%
+c(M1_0, M2_0)
+c(M1_1, M2_1)
+
+# DISPERSION 
+var(df$NoOfSubDomain)
+sd(df$NoOfSubDomain)
+
+# DISTRIBUTION FORM FOR Phishing AND Legitimate
+skw_value_0 <- skewness(df_0$NoOfSubDomain)
+kurtosis_value_0 <- kurtosis(df_0$NoOfSubDomain)
+
+skw_value_1 <- skewness(df_1$NoOfSubDomain)
+kurtosis_value_1 <- kurtosis(df_1$NoOfSubDomain)
+
+density_0 <- density(df_0$NoOfSubDomain)
+density_1 <- density(df_1$NoOfSubDomain)
+
+# 1 row, 2 columns
+par(mfrow = c(1, 2))  
+
+# phishing
+plot(density_0, main = "phishing",
+     col = "orange", lwd = 2, xlab = "NoOfSubDomain", ylab = "Density",
+     ylim = c(0, max(density_0$y)))
+legend("topright", 
+       legend = c(paste("Skewness:", round(skw_value_0, 2)), 
+                  paste("Kurtosis:", round(kurtosis_value_0, 2))), 
+       col = "orange", lwd = 2, bty = "n", cex = 0.8)
+
+# legitimate
+plot(density_1, main = "legitimate",
+     col = "lightblue", lwd = 2, xlab = "NoOfSubDomain", ylab = "Density",
+     ylim = c(0, max(density_1$y)))
+legend("topright", 
+       legend = c(paste("Skewness:", round(skw_value_1, 2)), 
+                  paste("Kurtosis:", round(kurtosis_value_1, 2))), 
+       col = "lightblue", lwd = 2, bty = "n", cex = 0.8)
+
+# reset plot layout
+par(mfrow = c(1, 1))
+
+# CORRELATION WITH TARGET
+cor(df$NoOfSubDomain, df$label)
+
+df <- subset(df, select = -NoOfSubDomain)
+#-------------------------------------------------------------------------------
+# ATTRIBUTE HasObfuscation
+
+table(df$HasObfuscation)
+
+# CORRELATION WITH TARGET
+cor(df$HasObfuscation, df$label)
+
+df <- subset(df, select = -HasObfuscation)
+#-------------------------------------------------------------------------------
+# ATTRIBUTE NoOfObfuscatedChar
+
+summary(df$NoOfObfuscatedChar)
+
+table(NoOfObfuscatedChar = ifelse(df$NoOfObfuscatedChar == 0, "0", ">0"),
+      label = df$label)
+
+# DISPERSION 
+var(df$NoOfObfuscatedChar)
+sd(df$NoOfObfuscatedChar)
+
+# CORRELATION WITH TARGET
+cor(df$NoOfObfuscatedChar, df$label)
+
+df <- subset(df, select = -NoOfObfuscatedChar)
+#-------------------------------------------------------------------------------
+# ATTRIBUTE ObfuscationRatio
+
+summary(df$ObfuscationRatio)
+
+table(ObfuscationRatio = ifelse(df$ObfuscationRatio == 0, "0", ">0"),
+      label = df$label)
+
+# DISPERSION 
+var(df$ObfuscationRatio)
+sd(df$ObfuscationRatio)
+
+# CORRELATION WITH TARGET
+cor(df$ObfuscationRatio, df$label)
+
+df <- subset(df, select = -ObfuscationRatio)
+#-------------------------------------------------------------------------------
+# ATTRIBUTE NoOfLettersInURL
+
 # TODO: study correlations with label 
-
-
-table(df$HasTitle)
