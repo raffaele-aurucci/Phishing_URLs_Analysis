@@ -271,7 +271,7 @@ kurtosis_value_1 <- kurtosis(df_1$URLLength)
 # calculate sturges bandwidth for dataset phishing (outliers)
 n_0 <- length(df_0$URLLength)
 h_sturges_0 <- (max(df_0$URLLength) - min(df_0$URLLength)) / sqrt(n_0)
-density_sturges_0 <- density(df_0$URLLength, bw = h_sturges_0)
+density_sturges_0 <- density(df_0$URLLength, bw = h_sturges_0, to=200)
 
 density_1 <- density(df_1$URLLength)
 
@@ -491,7 +491,6 @@ df <- subset(df, select = -CharContinuationRate)
 # delete this feature because:
 # It's an heuristic calculated by authors of dataset
 # It depends to a repository of Legitimate URL (dataset specific) 
-# There are constant values for each TLD (relative frequency of TLD)
 
 df <- subset(df, select = -TLDLegitimateProb)
 #-------------------------------------------------------------------------------
@@ -940,5 +939,277 @@ cor(df$ObfuscationRatio, df$label)
 df <- subset(df, select = -ObfuscationRatio)
 #-------------------------------------------------------------------------------
 # ATTRIBUTE NoOfLettersInURL
+
+summary(df$NoOfLettersInURL)
+
+breaks <- c(-1, 10, 20, 30, 40, 50, 60, 70, 80, 100, 150, 700) 
+
+labels <- c("[0-10]", "(10-20]", "(20-30]", "(30-40]", "(40-50]", "(50-60]", 
+            "(60-70]", "(70-80]", "(80-100]", "(100-150]", "(150-700]")
+
+j_freq <- table(df$label, cut(df$NoOfLettersInURL, breaks = breaks, 
+                              labels = labels))
+j_freq_rel <- prop.table(j_freq)
+
+barplot(j_freq_rel, col = c("orange", "lightblue"),
+        legend = c("phishing", "legitimate"),
+        main = "Frequenza relativa congiunta NoOfLettersInURL")
+
+# OUTLIERS
+summary(df_0$NoOfLettersInURL)
+summary(df_1$NoOfLettersInURL)
+
+boxplot(df_0$NoOfLettersInURL, df_1$NoOfLettersInURL,
+        main = 'Boxplot NoOfLettersInURL', col = c('orange', 'lightblue'),
+        ylim = c(min(df_0$NoOfLettersInURL), quantile(df_0$NoOfLettersInURL, 0.97)),
+        names = c('phishing', 'legitimate'))
+
+# IQR FOR 'NoOfLettersInURL'
+q1 <- quantile(df$NoOfLettersInURL, 0.25)
+q3 <- quantile(df$NoOfLettersInURL, 0.75)
+iqr <- q3 - q1
+
+lower_bound <- q1 - 1.5 * iqr
+upper_bound <- q3 + 1.5 * iqr
+
+outliers <- sum(df$NoOfLettersInURL < lower_bound | df$NoOfLettersInURL > upper_bound)
+outliers
+
+# IQR FOR 'Phishing'
+q1_0 <- quantile(df_0$NoOfLettersInURL, 0.25)
+q3_0 <- quantile(df_0$NoOfLettersInURL, 0.75)
+iqr_0 <- q3_0 - q1_0
+
+lower_bound_0 <- q1_0 - 1.5 * iqr_0
+upper_bound_0 <- q3_0 + 1.5 * iqr_0
+
+outliers_0 <- sum(df_0$NoOfLettersInURL < lower_bound_0 | df_0$NoOfLettersInURL > upper_bound_0)
+
+# IQR FOR 'Legitimate'
+q1_1 <- quantile(df_1$NoOfLettersInURL, 0.25)
+q3_1 <- quantile(df_1$NoOfLettersInURL, 0.75)
+iqr_1 <- q3_1 - q1_1
+
+lower_bound_1 <- q1_1 - 1.5 * iqr_1
+upper_bound_1 <- q3_1 + 1.5 * iqr_1
+
+outliers_1 <- sum(df_1$NoOfLettersInURL < lower_bound_1 | df_1$NoOfLettersInURL > upper_bound_1)
+
+outliers_0  
+outliers_1
+
+# OVERLAP MEDIAN
+IQR_0 <- quantile(df_0$NoOfLettersInURL, 0.75) - quantile(df_0$NoOfLettersInURL, 0.25)
+M1_0 <- quantile(df_0$NoOfLettersInURL, 0.5) - 1.57*IQR_0/sqrt(length(df_0$NoOfLettersInURL))
+M2_0 <- quantile(df_0$NoOfLettersInURL, 0.5) + 1.57*IQR_0/sqrt(length(df_0$NoOfLettersInURL))
+
+IQR_1 <- quantile(df_1$NoOfLettersInURL, 0.75) - quantile(df_1$NoOfLettersInURL, 0.25)
+M1_1 <- quantile(df_1$NoOfLettersInURL, 0.5) - 1.57*IQR_1/sqrt(length(df_1$NoOfLettersInURL))
+M2_1 <- quantile(df_1$NoOfLettersInURL, 0.5) + 1.57*IQR_1/sqrt(length(df_1$NoOfLettersInURL))
+
+# no overlap: the median is different with a level signification of 5%
+c(M1_0, M2_0)
+c(M1_1, M2_1)
+
+# DISPERSION 
+var(df$NoOfLettersInURL)
+sd(df$NoOfLettersInURL)
+
+# DISTRIBUTION FORM FOR Phishing AND Legitimate
+skw_value_0 <- skewness(df_0$NoOfLettersInURL)
+kurtosis_value_0 <- kurtosis(df_0$NoOfLettersInURL)
+
+skw_value_1 <- skewness(df_1$NoOfLettersInURL)
+kurtosis_value_1 <- kurtosis(df_1$NoOfLettersInURL)
+
+density_0 <- density(df_0$NoOfLettersInURL, to = 100)
+density_1 <- density(df_1$NoOfLettersInURL)
+
+# 1 row, 2 columns
+par(mfrow = c(1, 2))  
+
+# phishing
+plot(density_0, main = "phishing",
+     col = "orange", lwd = 2, xlab = "NoOfLettersInURL", ylab = "Density",
+     ylim = c(0, max(density_0$y)))
+legend("topright", 
+       legend = c(paste("Skewness:", round(skw_value_0, 2)), 
+                  paste("Kurtosis:", round(kurtosis_value_0, 2))), 
+       col = "orange", lwd = 2, bty = "n", cex = 0.8)
+
+# legitimate
+plot(density_1, main = "legitimate",
+     col = "lightblue", lwd = 2, xlab = "NoOfLettersInURL", ylab = "Density",
+     ylim = c(0, max(density_1$y)))
+legend("topright", 
+       legend = c(paste("Skewness:", round(skw_value_1, 2)), 
+                  paste("Kurtosis:", round(kurtosis_value_1, 2))), 
+       col = "lightblue", lwd = 2, bty = "n", cex = 0.8)
+
+# reset plot layout
+par(mfrow = c(1, 1))
+
+# CORRELATION WITH TARGET
+cor(df$NoOfLettersInURL, df$label)
+
+#-------------------------------------------------------------------------------
+# Attribute LetterRatioInURL
+
+summary(df$LetterRatioInURL)
+
+# CORRELATION WITH SIMILAR FEATURE
+cor(df$LetterRatioInURL, df$NoOfLettersInURL)
+
+# DISPERSION 
+var(df$LetterRatioInURL)
+sd(df$LetterRatioInURL)
+
+# CORRELATION WITH TARGET
+cor(df$LetterRatioInURL, df$label)
+
+# delete this feature because has less variance than NoLettersInURL
+df <- subset(df, select = -LetterRatioInURL)
+
+#-------------------------------------------------------------------------------
+# ATTRIBUTRE NoOfDegitsInURL
+
+summary(df$NoOfDegitsInURL)
+
+breaks <- c(-1, 0, 5, 10, 15, 20, 300) 
+
+labels <- c("0", "(0-5]", "(5-10]", "(10-15]", "(15-20]", "(20-300]")
+
+j_freq <- table(df$label, cut(df$NoOfDegitsInURL, breaks = breaks, labels = labels))
+j_freq_rel <- prop.table(j_freq)
+
+barplot(j_freq_rel, col = c("orange", "lightblue"),
+        legend = c("phishing", "legitimate"),
+        main = "Frequenza relativa congiunta NoOfDigitsInURL")
+
+# OUTLIERS
+summary(df_0$NoOfDegitsInURL)
+summary(df_1$NoOfDegitsInURL)
+
+boxplot(df_0$NoOfDegitsInURL, df_1$NoOfDegitsInURL,
+        main = 'Boxplot NoOfDigitsInURL', col = c('orange', 'lightblue'),
+        ylim = c(min(df_0$NoOfDegitsInURL), quantile(df_0$NoOfDegitsInURL, 0.97)),
+        names = c('phishing', 'legitimate'))
+
+# IQR FOR 'NoOfDigitsInURL'
+q1 <- quantile(df$NoOfDegitsInURL, 0.25)
+q3 <- quantile(df$NoOfDegitsInURL, 0.75)
+iqr <- q3 - q1
+
+lower_bound <- q1 - 1.5 * iqr
+upper_bound <- q3 + 1.5 * iqr
+
+outliers <- sum(df$NoOfDegitsInURL < lower_bound | df$NoOfDegitsInURL > upper_bound)
+outliers
+
+# IQR FOR 'Phishing'
+q1_0 <- quantile(df_0$NoOfDegitsInURL, 0.25)
+q3_0 <- quantile(df_0$NoOfDegitsInURL, 0.75)
+iqr_0 <- q3_0 - q1_0
+
+lower_bound_0 <- q1_0 - 1.5 * iqr_0
+upper_bound_0 <- q3_0 + 1.5 * iqr_0
+
+outliers_0 <- sum(df_0$NoOfDegitsInURL < lower_bound_0 | df_0$NoOfDegitsInURL > upper_bound_0)
+
+# IQR FOR 'Legitimate'
+q1_1 <- quantile(df_1$NoOfDegitsInURL, 0.25)
+q3_1 <- quantile(df_1$NoOfDegitsInURL, 0.75)
+iqr_1 <- q3_1 - q1_1
+
+lower_bound_1 <- q1_1 - 1.5 * iqr_1
+upper_bound_1 <- q3_1 + 1.5 * iqr_1
+
+outliers_1 <- sum(df_1$NoOfDegitsInURL < lower_bound_1 | df_1$NoOfDegitsInURL > upper_bound_1)
+
+outliers_0  
+outliers_1
+
+# OVERLAP MEDIAN
+IQR_0 <- quantile(df_0$NoOfDegitsInURL, 0.75) - quantile(df_0$NoOfDegitsInURL, 0.25)
+M1_0 <- quantile(df_0$NoOfDegitsInURL, 0.5) - 1.57*IQR_0/sqrt(length(df_0$NoOfDegitsInURL))
+M2_0 <- quantile(df_0$NoOfDegitsInURL, 0.5) + 1.57*IQR_0/sqrt(length(df_0$NoOfDegitsInURL))
+
+IQR_1 <- quantile(df_1$NoOfDegitsInURL, 0.75) - quantile(df_1$NoOfDegitsInURL, 0.25)
+M1_1 <- quantile(df_1$NoOfDegitsInURL, 0.5) - 1.57*IQR_1/sqrt(length(df_1$NoOfDegitsInURL))
+M2_1 <- quantile(df_1$NoOfDegitsInURL, 0.5) + 1.57*IQR_1/sqrt(length(df_1$NoOfDegitsInURL))
+
+# overlap: the median isn't different with a level signification of 5%
+c(M1_0, M2_0)
+c(M1_1, M2_1)
+
+# DISPERSION 
+var(df$NoOfDegitsInURL)
+sd(df$NoOfDegitsInURL)
+
+# DISTRIBUTION FORM FOR Phishing AND Legitimate
+skw_value_0 <- skewness(df_0$NoOfDegitsInURL)
+kurtosis_value_0 <- kurtosis(df_0$NoOfDegitsInURL)
+
+skw_value_1 <- skewness(df_1$NoOfDegitsInURL)
+kurtosis_value_1 <- kurtosis(df_1$NoOfDegitsInURL)
+
+density_0 <- density(df_0$NoOfDegitsInURL, to=50)
+density_1 <- density(df_1$NoOfDegitsInURL)
+
+# 1 row, 2 columns
+par(mfrow = c(1, 2))  
+
+# phishing
+plot(density_0, main = "phishing",
+     col = "orange", lwd = 2, xlab = "LetterRatioInURL", ylab = "Density",
+     ylim = c(0, max(density_0$y)))
+legend("topright", 
+       legend = c(paste("Skewness:", round(skw_value_0, 2)), 
+                  paste("Kurtosis:", round(kurtosis_value_0, 2))), 
+       col = "orange", lwd = 2, bty = "n", cex = 0.8)
+
+# legitimate
+plot(density_1, main = "legitimate",
+     col = "lightblue", lwd = 2, xlab = "LetterRatioInURL", ylab = "Density",
+     ylim = c(0, max(density_1$y)))
+legend("topright", 
+       legend = c(paste("Skewness:", round(skw_value_1, 2)), 
+                  paste("Kurtosis:", round(kurtosis_value_1, 2))), 
+       col = "lightblue", lwd = 2, bty = "n", cex = 0.8)
+
+# reset plot layout
+par(mfrow = c(1, 1))
+
+# CORRELATION WITH TARGET
+cor(df$NoOfDegitsInURL, df$label)
+
+#-------------------------------------------------------------------------------
+# ATTRIBUTE DegitRatioInURL
+
+summary(df$DegitRatioInURL)
+
+# DISPERSION
+var(df$DegitRatioInURL)
+sd(df$DegitRatioInURL)
+
+# CORRELATION WITH SIMILAR FEATURE
+cor(df$DegitRatioInURL, df$NoOfDegitsInURL)
+
+# CORRELATION WITH TARGET
+cor(df$DegitRatioInURL, df$label)
+
+# delete this feature because has less variance than NoOfDigitsInURL
+df <- subset(df, select = -DegitRatioInURL)
+#-------------------------------------------------------------------------------
+# ATTRIBUTE NoOfEqualsInURL
+
+summary(df$NoOfEqualsInURL)
+
+# DISPERSION
+var(df$NoOfEqualsInURL)
+sd(df$NoOfEqualsInURL)
+
+# CORRELATION
+cor(df$NoOfEqualsInURL, df$label)
 
 # TODO: study correlations with label 
