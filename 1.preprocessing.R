@@ -39,6 +39,9 @@ moda <- function(x) {
   ux[which.max(tabulate(match(x, ux)))]
 }
 
+# disable scientific notation view
+options(scipen = 999)
+
 # ------------------------------------------------------------------------------
 # ATTRIBUTE 'label'
 
@@ -120,15 +123,86 @@ sd(df$TLDEncoding)
 # DISTRIBUTION
 breaks <- c(-1, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0)
 
-labels <- c("[0-0.1]", "(0.1-0.2]", "(0.2-0.3]", "(0.3-0.4]", "(0.4-0.5]",
-            "(0.5-0.6]", "(0.6-0.7]", "(0.7-0.8]", "(0.8-0.9]", "(0.9-1.0]")
+labels <- c("[0,0.1]", "(0.1,0.2]", "(0.2,0.3]", "(0.3,0.4]", "(0.4,0.5]",
+            "(0.5,0.6]", "(0.6,0.7]", "(0.7,0.8]", "(0.8,0.9]", "(0.9,1.0]")
  
 j_freq <- table(df$label, cut(df$TLDEncoding, breaks = breaks, labels = labels))
 j_freq_rel <- prop.table(j_freq)
+j_freq_rel
 
 barplot(j_freq_rel, col = c("orange", "lightblue"),
         legend = c("phishing", "legitimate"),
         main = "Frequenza relativa congiunta TLDEncoding")
+
+# OUTLIERS
+summary(df_0$TLDEncoding)
+summary(df_1$TLDEncoding)
+
+boxplot(df_0$TLDEncoding, df_1$TLDEncoding,
+        main = 'Boxplot TLDEncoding', col = c('orange', 'lightblue'),
+        names = c('phishing', 'legitimate'))
+
+# IQR FOR 'TLDEncoding'
+q1 <- quantile(df$TLDEncoding, 0.25)
+q3 <- quantile(df$TLDEncoding, 0.75)
+iqr <- q3 - q1
+
+lower_bound <- q1 - 1.5 * iqr
+upper_bound <- q3 + 1.5 * iqr
+
+outliers <- sum(df$TLDEncoding < lower_bound | df$TLDEncoding > upper_bound)
+outliers
+
+# IQR FOR 'Phishing'
+q1_0 <- quantile(df_0$TLDEncoding, 0.25)
+q3_0 <- quantile(df_0$TLDEncoding, 0.75)
+iqr_0 <- q3_0 - q1_0
+
+lower_bound_0 <- q1_0 - 1.5 * iqr_0
+upper_bound_0 <- q3_0 + 1.5 * iqr_0
+
+outliers_0 <- sum(df_0$TLDEncoding < lower_bound_0 | df_0$TLDEncoding > upper_bound_0)
+
+# IQR FOR 'Legitimate'
+q1_1 <- quantile(df_1$TLDEncoding, 0.25)
+q3_1 <- quantile(df_1$TLDEncoding, 0.75)
+iqr_1 <- q3_1 - q1_1
+
+lower_bound_1 <- q1_1 - 1.5 * iqr_1
+upper_bound_1 <- q3_1 + 1.5 * iqr_1
+
+outliers_1 <- sum(df_1$TLDEncoding < lower_bound_1 | df_1$TLDEncoding > upper_bound_1)
+
+outliers_0  
+outliers_1 
+
+
+# OVERLAP MEDIAN
+IQR_0 <- quantile(df_0$TLDEncoding, 0.75) - quantile(df_0$TLDEncoding, 0.25)
+M1_0 <- quantile(df_0$TLDEncoding, 0.5) - 1.57*IQR_0/sqrt(length(df_0$TLDEncoding))
+M2_0 <- quantile(df_0$TLDEncoding, 0.5) + 1.57*IQR_0/sqrt(length(df_0$TLDEncoding))
+
+IQR_1 <- quantile(df_1$TLDEncoding, 0.75) - quantile(df_1$TLDEncoding, 0.25)
+M1_1 <- quantile(df_1$TLDEncoding, 0.5) - 1.57*IQR_1/sqrt(length(df_1$TLDEncoding))
+M2_1 <- quantile(df_1$TLDEncoding, 0.5) + 1.57*IQR_1/sqrt(length(df_1$TLDEncoding))
+
+# overlap: the median isn't different with a level signification of 5%
+c(M1_0, M2_0)
+c(M1_1, M2_1)
+
+# DISTRIBUTION FORM
+skw_value <- skewness(df$TLDEncoding)       # (gamma > 0) right skewed
+kurtosis_value <- kurtosis(df$TLDEncoding)  # leptokurtic
+skw_value
+kurtosis_value
+
+density <- density(df$TLDEncoding)
+
+plot(density, main = "Distribuzione TLDEncoding", 
+     col = "orange", lwd = 2, xlab = 'TLDEncoding')
+legend("topright", legend = c(paste("Skewness:", round(skw_value, 2)), 
+                              paste("Kurtosis:", round(kurtosis_value, 2))), 
+       bty = "n", col = "black", cex = 0.8)
 
 # DISTRIBUTION FORM FOR Phishing AND Legitimate
 skw_value_0 <- skewness(df_0$TLDEncoding)
@@ -174,8 +248,11 @@ summary(df$URLLength)
 
 breaks <- c(0, 10, 20, 30, 40, 50, 1000) 
 
-j_freq <- table(df$label, cut(df$URLLength, breaks = breaks))
+labels <- c("[0,10]", "(10,20]", "(20,30]", "(30,40]", "(40,50]", "(50,1000]")
+
+j_freq <- table(df$label, cut(df$URLLength, breaks = breaks, labels = labels))
 j_freq_rel <- prop.table(j_freq)
+j_freq_rel
 
 barplot(j_freq_rel, col = c("orange", "lightblue"),
         legend = c("phishing", "legitimate"),
@@ -309,8 +386,11 @@ summary(df$DomainLength)
 
 breaks <- c(0, 10, 20, 30, 40, 50, 100) 
 
-j_freq <- table(df$label, cut(df$DomainLength, breaks = breaks))
+labels <- c("[0,10]", "(10,20]", "(20,30]", "(30,40]", "(40,50]", "(50,100]")
+
+j_freq <- table(df$label, cut(df$DomainLength, breaks = breaks, labels = labels))
 j_freq_rel <- prop.table(j_freq)
+j_freq_rel
 
 barplot(j_freq_rel, col = c("orange", "lightblue"),
         legend = c("phishing", "legitimate"),
@@ -445,9 +525,12 @@ df <- subset(df, select = -IsDomainIP)
 
 summary(df$URLSimilarityIndex)
 
-breaks <- c(0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100) 
+breaks <- c(-1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100) 
 
-j_freq <- table(df$label, cut(df$URLSimilarityIndex, breaks = breaks))
+labels <- c("[0,10]", "(10,20]", "(20,30]", "(30,40]", "(40,50]", "(50,60]",
+            "(60,70]", "(70,80]", "(80,90]", "(90,100]")
+
+j_freq <- table(df$label, cut(df$URLSimilarityIndex, breaks = breaks, labels = labels))
 j_freq_rel <- prop.table(j_freq)
 j_freq_rel
 
@@ -467,8 +550,6 @@ sd(df$URLSimilarityIndex)
 
 # CORRELATIONS WITH TARGET: ~0.85
 cor(df$URLSimilarityIndex, df$label)
-
-# values from 0 to 100
 
 # delete this feature because:
 # It's an heuristic calculated by authors of dataset
@@ -508,8 +589,8 @@ summary(df$URLTitleMatchScore)
 
 breaks <- c(-1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100) 
 
-labels <- c("[0,10]", "(10-20]", "(20-30]", "(30-40]", "(40-50]", "(50-60]", 
-            "(60-70]", "(70-80]", "(80-90]", "(90-100]")
+labels <- c("[0,10]", "(10,20]", "(20,30]", "(30,40]", "(40,50]", "(50,60]", 
+            "(60,70]", "(70,80]", "(80,90]", "(90,100]")
 
 j_freq <- table(df$label, cut(df$URLTitleMatchScore, breaks = breaks, 
                               labels = labels))
@@ -518,24 +599,6 @@ j_freq_rel <- prop.table(j_freq)
 barplot(j_freq_rel, col = c("orange", "lightblue"),
         legend = c("phishing", "legitimate"),
         main = "Frequenza relativa congiunta URLTitleMatchScore")
-
-# transform this feature follow its score value
-# 0  -> score == 0      (no match)
-# 1  -> 0 < score < 100 (at least a match)
-# 2  -> score == 100.   (complete match)
-
-# df$URLTitleMatchScore[df$URLTitleMatchScore == 0] <- 0
-# df$URLTitleMatchScore[df$URLTitleMatchScore > 0 & df$URLTitleMatchScore < 100] <- 1
-# df$URLTitleMatchScore[df$URLTitleMatchScore == 100] <- 2
-# 
-# j_freq <- table(df$label, df$URLTitleMatchScore)
-# j_freq_rel <- prop.table(j_freq)
-# j_freq_rel
-# 
-# barplot(j_freq_rel, col = c("orange", "lightblue"),
-#         legend = c("phishing", "legitimate"),
-#         main = "Frequenza relativa congiunta URLTitleMatchScore",
-#         names.arg = c('score = 0', '0 < score < 100', 'score = 100'))
 
 # OUTLIERS
 summary(df_0$URLTitleMatchScore)
@@ -582,6 +645,20 @@ outliers_1
 # DISPERSION 
 var(df$URLTitleMatchScore)
 sd(df$URLTitleMatchScore)
+
+# DISTRIBUTION FORM
+skw_value <- skewness(df$URLTitleMatchScore)       # (gamma > 0) right skewed
+kurtosis_value <- kurtosis(df$URLTitleMatchScore)  # leptokurtic
+skw_value
+kurtosis_value
+
+density <- density(df$URLTitleMatchScore)
+
+plot(density, main = "Distribuzione URLTitleMatchScore", 
+     col = "orange", lwd = 2, xlab = 'URLTitleMatchScore')
+legend("topright", legend = c(paste("Skewness:", round(skw_value, 2)), 
+                              paste("Kurtosis:", round(kurtosis_value, 2))), 
+       bty = "n", col = "black", cex = 0.8)
 
 # DISTRIBUTION FORM FOR Phishing AND Legitimate
 skw_value_0 <- skewness(df_0$URLTitleMatchScore)
@@ -632,28 +709,11 @@ labels <- c("[0,10]", "(10-20]", "(20-30]", "(30-40]", "(40-50]", "(50-60]",
 j_freq <- table(df$label, cut(df$DomainTitleMatchScore, breaks = breaks, 
                               labels = labels))
 j_freq_rel <- prop.table(j_freq)
+j_freq_rel
 
 barplot(j_freq_rel, col = c("orange", "lightblue"),
         legend = c("phishing", "legitimate"),
         main = "Frequenza relativa congiunta DomainTitleMatchScore")
-
-# transform this feature follow its score value
-# 0  -> score == 0      (no match)
-# 1  -> 0 < score < 100 (at least a match)
-# 2  -> score == 100.   (complete match)
-
-# df$DomainTitleMatchScore[df$DomainTitleMatchScore == 0] <- 0
-# df$DomainTitleMatchScore[df$DomainTitleMatchScore > 0 & df$DomainTitleMatchScore < 100] <- 1
-# df$DomainTitleMatchScore[df$DomainTitleMatchScore == 100] <- 2
-# 
-# j_freq <- table(df$label, df$DomainTitleMatchScore)
-# j_freq_rel <- prop.table(j_freq)
-# j_freq_rel
-# 
-# barplot(j_freq_rel, col = c("orange", "lightblue"),
-#         legend = c("phishing", "legitimate"),
-#         main = "Frequenza relativa congiunta DomainTitleMatchScore",
-#         names.arg = c('score = 0', '0 < score < 100', 'score = 100'))
 
 # OUTLIERS
 summary(df_0$DomainTitleMatchScore)
@@ -701,6 +761,20 @@ outliers_1
 var(df$DomainTitleMatchScore)
 sd(df$DomainTitleMatchScore)
 
+# DISTRIBUTION FORM
+skw_value <- skewness(df$DomainTitleMatchScore)       # (gamma > 0) right skewed
+kurtosis_value <- kurtosis(df$DomainTitleMatchScore)  # leptokurtic
+skw_value
+kurtosis_value
+
+density <- density(df$DomainTitleMatchScore)
+
+plot(density, main = "Distribuzione DomainTitleMatchScore", 
+     col = "orange", lwd = 2, xlab = 'DomainTitleMatchScore')
+legend("topright", legend = c(paste("Skewness:", round(skw_value, 2)), 
+                              paste("Kurtosis:", round(kurtosis_value, 2))), 
+       bty = "n", col = "black", cex = 0.8)
+
 # DISTRIBUTION FORM FOR Phishing AND Legitimate
 skw_value_0 <- skewness(df_0$DomainTitleMatchScore)
 kurtosis_value_0 <- kurtosis(df_0$DomainTitleMatchScore)
@@ -747,10 +821,11 @@ summary(df$TLDLength)
 j_freq <- table(df$label, 
                 cut(df$TLDLength,
                     breaks = c(1, 2, 3, 4, 13), 
-                    labels = c("2", "3", "4", "5-13"), 
+                    labels = c("2", "3", "4", "[5-13]"), 
                     right = TRUE))
 
 j_freq_rel <- prop.table(j_freq)
+j_freq_rel
 
 barplot(j_freq_rel, col = c("orange", "lightblue"),
         legend = c("phishing", "legitimate"),
@@ -828,6 +903,7 @@ summary(df$NoOfSubDomain)
 
 j_freq <- table(df$label, df$NoOfSubDomain)
 j_freq_rel <- prop.table(j_freq)
+j_freq_rel
 
 barplot(j_freq_rel, col = c("orange", "lightblue"),
         legend = c("phishing", "legitimate"),
@@ -926,8 +1002,10 @@ df <- subset(df, select = -NoOfObfuscatedChar)
 
 summary(df$ObfuscationRatio)
 
-table(ObfuscationRatio = ifelse(df$ObfuscationRatio == 0, "0", ">0"),
-      label = df$label)
+j_freq <- table(ObfuscationRatio = ifelse(df$ObfuscationRatio == 0, "0", ">0"),
+                label = df$label)
+j_freq_rel <- prop.table(j_freq)
+j_freq_rel
 
 # DISPERSION 
 var(df$ObfuscationRatio)
@@ -944,12 +1022,13 @@ summary(df$NoOfLettersInURL)
 
 breaks <- c(-1, 10, 20, 30, 40, 50, 60, 70, 80, 100, 150, 700) 
 
-labels <- c("[0-10]", "(10-20]", "(20-30]", "(30-40]", "(40-50]", "(50-60]", 
-            "(60-70]", "(70-80]", "(80-100]", "(100-150]", "(150-700]")
+labels <- c("[0,10]", "(10,20]", "(20,30]", "(30,40]", "(40,50]", "(50,60]", 
+            "(60,70]", "(70,80]", "(80,100]", "(100,150]", "(150,700]")
 
 j_freq <- table(df$label, cut(df$NoOfLettersInURL, breaks = breaks, 
                               labels = labels))
 j_freq_rel <- prop.table(j_freq)
+j_freq_rel
 
 barplot(j_freq_rel, col = c("orange", "lightblue"),
         legend = c("phishing", "legitimate"),
@@ -1015,6 +1094,20 @@ c(M1_1, M2_1)
 var(df$NoOfLettersInURL)
 sd(df$NoOfLettersInURL)
 
+# DISTRIBUTION FORM
+skw_value <- skewness(df$NoOfLettersInURL)       # (gamma > 0) right skewed
+kurtosis_value <- kurtosis(df$NoOfLettersInURL)  # leptokurtic
+skw_value
+kurtosis_value
+
+density <- density(df$NoOfLettersInURL)
+
+plot(density, main = "Distribuzione NoOfLettersInURL", 
+     col = "orange", lwd = 2, xlab = 'NoOfLettersInURL')
+legend("topright", legend = c(paste("Skewness:", round(skw_value, 2)), 
+                              paste("Kurtosis:", round(kurtosis_value, 2))), 
+       bty = "n", col = "black", cex = 0.8)
+
 # DISTRIBUTION FORM FOR Phishing AND Legitimate
 skw_value_0 <- skewness(df_0$NoOfLettersInURL)
 kurtosis_value_0 <- kurtosis(df_0$NoOfLettersInURL)
@@ -1077,10 +1170,11 @@ summary(df$NoOfDegitsInURL)
 
 breaks <- c(-1, 0, 5, 10, 15, 20, 300) 
 
-labels <- c("0", "(0-5]", "(5-10]", "(10-15]", "(15-20]", "(20-300]")
+labels <- c("0", "(0,5]", "(5,10]", "(10,15]", "(15,20]", "(20,300]")
 
 j_freq <- table(df$label, cut(df$NoOfDegitsInURL, breaks = breaks, labels = labels))
 j_freq_rel <- prop.table(j_freq)
+j_freq_rel
 
 barplot(j_freq_rel, col = c("orange", "lightblue"),
         legend = c("phishing", "legitimate"),
@@ -1146,6 +1240,20 @@ c(M1_1, M2_1)
 var(df$NoOfDegitsInURL)
 sd(df$NoOfDegitsInURL)
 
+# DISTRIBUTION FORM
+skw_value <- skewness(df$NoOfDegitsInURL)       # (gamma > 0) right skewed
+kurtosis_value <- kurtosis(df$NoOfDegitsInURL)  # leptokurtic
+skw_value
+kurtosis_value
+
+density <- density(df$NoOfDegitsInURL, to=50)
+
+plot(density, main = "Distribuzione NoOfDigitsInURL", 
+     col = "orange", lwd = 2, xlab = 'NoOfDegitsInURL')
+legend("topright", legend = c(paste("Skewness:", round(skw_value, 2)), 
+                              paste("Kurtosis:", round(kurtosis_value, 2))), 
+       bty = "n", col = "black", cex = 0.8)
+
 # DISTRIBUTION FORM FOR Phishing AND Legitimate
 skw_value_0 <- skewness(df_0$NoOfDegitsInURL)
 kurtosis_value_0 <- kurtosis(df_0$NoOfDegitsInURL)
@@ -1161,7 +1269,7 @@ par(mfrow = c(1, 2))
 
 # phishing
 plot(density_0, main = "phishing",
-     col = "orange", lwd = 2, xlab = "LetterRatioInURL", ylab = "Density",
+     col = "orange", lwd = 2, xlab = "NoOfDigitsInURL", ylab = "Density",
      ylim = c(0, max(density_0$y)))
 legend("topright", 
        legend = c(paste("Skewness:", round(skw_value_0, 2)), 
@@ -1170,7 +1278,7 @@ legend("topright",
 
 # legitimate
 plot(density_1, main = "legitimate",
-     col = "lightblue", lwd = 2, xlab = "LetterRatioInURL", ylab = "Density",
+     col = "lightblue", lwd = 2, xlab = "NoOfDigitsInURL", ylab = "Density",
      ylim = c(0, max(density_1$y)))
 legend("topright", 
        legend = c(paste("Skewness:", round(skw_value_1, 2)), 
@@ -1205,6 +1313,18 @@ df <- subset(df, select = -DegitRatioInURL)
 
 summary(df$NoOfEqualsInURL)
 
+breaks <- c(-1, 0, 5, 10, 15) 
+
+labels <- c("0", "(0,5]", "(5,10]", "(10,15]")
+
+j_freq <- table(df$label, cut(df$NoOfEqualsInURL, breaks = breaks, labels = labels))
+j_freq_rel <- prop.table(j_freq)
+j_freq_rel
+
+barplot(j_freq_rel, col = c("orange", "lightblue"),
+        legend = c("phishing", "legitimate"),
+        main = "Frequenza relativa congiunta NoOfEqualsInURL")
+
 # DISPERSION
 var(df$NoOfEqualsInURL)
 sd(df$NoOfEqualsInURL)
@@ -1212,4 +1332,255 @@ sd(df$NoOfEqualsInURL)
 # CORRELATION
 cor(df$NoOfEqualsInURL, df$label)
 
+# df <- subset(df, select = -NoOfEqualsInURL)
+#-------------------------------------------------------------------------------
+# ATTRIBUTE NoOfQMarkInURL
+
+summary(df$NoOfQMarkInURL)
+
+j_freq <- table(df$label, df$NoOfQMarkInURL)
+j_freq_rel <- prop.table(j_freq)
+j_freq_rel
+
+barplot(j_freq_rel, col = c("orange", "lightblue"),
+        legend = c("phishing", "legitimate"),
+        main = "Frequenza relativa congiunta NoOfEqualsInURL")
+
+# DISPERSION
+var(df$NoOfQMarkInURL)
+sd(df$NoOfQMarkInURL)
+
+# CORRELATION
+cor(df$NoOfQMarkInURL, df$label)
+
+# df <- subset(df, select = -NoOfQMarkInURL)
+#-------------------------------------------------------------------------------
+# ATTRIBUTE NoOfAmpersandInURL
+
+summary(df$NoOfAmpersandInURL)
+
+j_freq <- table(NoOfAmpersandInURL = ifelse(df$NoOfAmpersandInURL == 0, "0", ">0"),
+      label = df$label)
+j_freq_rel <- prop.table(j_freq)
+j_freq_rel
+
+# DISPERSION
+var(df$NoOfAmpersandInURL)
+sd(df$NoOfAmpersandInURL)
+
+# CORRELATION
+cor(df$NoOfAmpersandInURL, df$label)
+
+# df <- subset(df, select = -NoOfAmpersandInURL)
+#-------------------------------------------------------------------------------
+# ATTRIBUTE NoOfOtherSpecialCharsInURL
+
+summary(df$NoOfOtherSpecialCharsInURL)
+
+breaks <- c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 115) 
+
+labels <- c("(0,1]", "(1,2]", "(2,3]", "(3,4]", "(4,5]", "(5,6]", 
+            "(6,7]", "(7,8]", "(8,9]", "(9,10]", "(10,112]")
+
+j_freq <- table(df$label, cut(df$NoOfOtherSpecialCharsInURL, breaks = breaks, labels = labels))
+j_freq_rel <- prop.table(j_freq)
+j_freq_rel
+
+barplot(j_freq_rel, col = c("orange", "lightblue"),
+        legend = c("phishing", "legitimate"),
+        main = "Frequenza relativa congiunta NoOfOtherSpecialCharsInURL")
+
+# DISPERSION
+var(df$NoOfOtherSpecialCharsInURL)
+sd(df$NoOfOtherSpecialCharsInURL)
+
+# CORRELATION
+cor(df$NoOfOtherSpecialCharsInURL, df$label)
+
+# Create a new feature 'NoOfSpecialCharsInURL' that aggregate the value of:
+# - NoOfOtherSpecialCharsInURL
+# - NoOfAmpersandInURL
+# - NoOfQMarkInURL
+# - NoOfEqualsInURL
+
+df['NoOfSpecialCharsInURL'] <- df['NoOfOtherSpecialCharsInURL'] + 
+                               df['NoOfAmpersandInURL'] + df['NoOfQMarkInURL'] + 
+                               df['NoOfEqualsInURL']
+
+summary(df$NoOfSpecialCharsInURL)
+
+breaks <- c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 122) 
+
+labels <- c("(0,1]", "(1,2]", "(2,3]", "(3,4]", "(4,5]", "(5,6]", 
+            "(6,7]", "(7,8]", "(8,9]", "(9,10]", "(10,121]")
+
+j_freq <- table(df$label, cut(df$NoOfSpecialCharsInURL, breaks = breaks, labels = labels))
+j_freq_rel <- prop.table(j_freq)
+j_freq_rel
+
+barplot(j_freq_rel, col = c("orange", "lightblue"),
+        legend = c("phishing", "legitimate"),
+        main = "Frequenza relativa congiunta NoOfSpecialCharsInURL")
+
+# reorder column
+cols_order <- append(names(df), 'NoOfSpecialCharsInURL', after = 5)
+df <- df[, cols_order]
+
+# delete other feature
+df <- subset(df, select = -NoOfOtherSpecialCharsInURL)
+df <- subset(df, select = -NoOfAmpersandInURL)
+df <- subset(df, select = -NoOfQMarkInURL)
+df <- subset(df, select = -NoOfEqualsInURL)
+df <- subset(df, select = -NoOfSpecialCharsInURL.1)
+
+# update df_0 and df_1
+df_0 <- df[df$label == 0, ]
+df_1 <- df[df$label == 1, ]
+
+# DISPERSION
+var(df$NoOfSpecialCharsInURL)
+sd(df$NoOfSpecialCharsInURL)
+
+# OUTLIERS
+summary(df_0$NoOfSpecialCharsInURL)
+summary(df_1$NoOfSpecialCharsInURL)
+
+boxplot(df_0$NoOfSpecialCharsInURL, df_1$NoOfSpecialCharsInURL,
+        main = 'Boxplot NoOfSpecialCharsInURL', col = c('orange', 'lightblue'),
+        ylim = c(min(df_0$NoOfSpecialCharsInURL), quantile(df_0$NoOfSpecialCharsInURL, 0.99)),
+        names = c('phishing', 'legitimate'))
+
+# IQR FOR 'NoOfSpecialCharsInURL'
+q1 <- quantile(df$NoOfSpecialCharsInURL, 0.25)
+q3 <- quantile(df$NoOfSpecialCharsInURL, 0.75)
+iqr <- q3 - q1
+
+lower_bound <- q1 - 1.5 * iqr
+upper_bound <- q3 + 1.5 * iqr
+
+outliers <- sum(df$NoOfSpecialCharsInURL < lower_bound | df$NoOfSpecialCharsInURL > upper_bound)
+outliers
+
+# IQR FOR 'Phishing'
+q1_0 <- quantile(df_0$NoOfSpecialCharsInURL, 0.25)
+q3_0 <- quantile(df_0$NoOfSpecialCharsInURL, 0.75)
+iqr_0 <- q3_0 - q1_0
+
+lower_bound_0 <- q1_0 - 1.5 * iqr_0
+upper_bound_0 <- q3_0 + 1.5 * iqr_0
+
+outliers_0 <- sum(df_0$NoOfSpecialCharsInURL < lower_bound_0 | df_0$NoOfSpecialCharsInURL > upper_bound_0)
+
+# IQR FOR 'Legitimate'
+q1_1 <- quantile(df_1$NoOfSpecialCharsInURL, 0.25)
+q3_1 <- quantile(df_1$NoOfSpecialCharsInURL, 0.75)
+iqr_1 <- q3_1 - q1_1
+
+lower_bound_1 <- q1_1 - 1.5 * iqr_1
+upper_bound_1 <- q3_1 + 1.5 * iqr_1
+
+outliers_1 <- sum(df_1$NoOfSpecialCharsInURL < lower_bound_1 | df_1$NoOfSpecialCharsInURL > upper_bound_1)
+
+outliers_0  
+outliers_1
+
+# OVERLAP MEDIAN
+IQR_0 <- quantile(df_0$NoOfSpecialCharsInURL, 0.75) - quantile(df_0$NoOfSpecialCharsInURL, 0.25)
+M1_0 <- quantile(df_0$NoOfSpecialCharsInURL, 0.5) - 1.57*IQR_0/sqrt(length(df_0$NoOfSpecialCharsInURL))
+M2_0 <- quantile(df_0$NoOfSpecialCharsInURL, 0.5) + 1.57*IQR_0/sqrt(length(df_0$NoOfSpecialCharsInURL))
+
+IQR_1 <- quantile(df_1$NoOfSpecialCharsInURL, 0.75) - quantile(df_1$NoOfSpecialCharsInURL, 0.25)
+M1_1 <- quantile(df_1$NoOfSpecialCharsInURL, 0.5) - 1.57*IQR_1/sqrt(length(df_1$NoOfSpecialCharsInURL))
+M2_1 <- quantile(df_1$NoOfSpecialCharsInURL, 0.5) + 1.57*IQR_1/sqrt(length(df_1$NoOfSpecialCharsInURL))
+
+# no overlap: the median is different with a level signification of 5%
+c(M1_0, M2_0)
+c(M1_1, M2_1)
+
+# DISTRIBUTION FORM
+skw_value <- skewness(df$NoOfSpecialCharsInURL)       # (gamma > 0) right skewed
+kurtosis_value <- kurtosis(df$NoOfSpecialCharsInURL)  # leptokurtic
+skw_value
+kurtosis_value
+
+n <- length(df$NoOfSpecialCharsInURL)
+h_sturges <- (max(df$NoOfSpecialCharsInURL) - min(df$NoOfSpecialCharsInURL)) / sqrt(n)
+density_sturges <- density(df$NoOfSpecialCharsInURL, bw = h_sturges)
+
+plot(density_sturges, main = "Distribuzione NoOfSpecialCharsInURL", 
+     col = "orange", lwd = 2, xlab = 'NoOfSpecialCharsInURL')
+legend("topright", legend = c(paste("Skewness:", round(skw_value, 2)), 
+                              paste("Kurtosis:", round(kurtosis_value, 2))), 
+       bty = "n", col = "black", cex = 0.8)
+
+# DISTRIBUTION FORM FOR Phishing AND Legitimate
+skw_value_0 <- skewness(df_0$NoOfSpecialCharsInURL)
+kurtosis_value_0 <- kurtosis(df_0$NoOfSpecialCharsInURL)
+
+skw_value_1 <- skewness(df_1$NoOfSpecialCharsInURL)
+kurtosis_value_1 <- kurtosis(df_1$NoOfSpecialCharsInURL)
+
+n <- length(df_0$NoOfSpecialCharsInURL)
+h_sturges <- (max(df_0$NoOfSpecialCharsInURL) - min(df_0$NoOfSpecialCharsInURL)) / sqrt(n)
+density_0 <- density(df_0$NoOfSpecialCharsInURL, bw = h_sturges)
+
+n <- length(df_1$NoOfSpecialCharsInURL)
+h_sturges <- (max(df_1$NoOfSpecialCharsInURL) - min(df_1$NoOfSpecialCharsInURL)) / sqrt(n)
+density_1 <- density(df_1$NoOfSpecialCharsInURL, bw = h_sturges)
+
+# 1 row, 2 columns
+par(mfrow = c(1, 2))  
+
+# phishing
+plot(density_0, main = "phishing",
+     col = "orange", lwd = 2, xlab = "NoOfSpecialCharsInURL", ylab = "Density",
+     ylim = c(0, max(density_0$y)))
+legend("topright", 
+       legend = c(paste("Skewness:", round(skw_value_0, 2)), 
+                  paste("Kurtosis:", round(kurtosis_value_0, 2))), 
+       col = "orange", lwd = 2, bty = "n", cex = 0.8)
+
+# legitimate
+plot(density_1, main = "legitimate",
+     col = "lightblue", lwd = 2, xlab = "NoOfSpecialCharsInURL", ylab = "Density",
+     ylim = c(0, max(density_1$y)))
+legend("topright", 
+       legend = c(paste("Skewness:", round(skw_value_1, 2)), 
+                  paste("Kurtosis:", round(kurtosis_value_1, 2))), 
+       col = "lightblue", lwd = 2, bty = "n", cex = 0.8)
+
+# reset plot layout
+par(mfrow = c(1, 1))
+
+# CORRELATION
+cor(df$NoOfSpecialCharsInURL, df$label)
+#-------------------------------------------------------------------------------
+# ATTRIBUTE SpecialCharRatioInURL
+
+summary(df$SpacialCharRatioInURL)
+
+breaks = c(0, 0.05, 0.1, 0.15, 0.20, 0.25)
+
+labels <- c("[0,0.05]", "(0.05,0.1]", "(0.1,0.15]", "(0.15,0.2]", "(0.2,0.25]")
+
+j_freq <- table(df$label, cut(df$SpacialCharRatioInURL, breaks = breaks, labels = labels))
+j_freq_rel <- prop.table(j_freq)
+j_freq_rel
+
+barplot(j_freq_rel, col = c("orange", "lightblue"),
+        legend = c("phishing", "legitimate"),
+        main = "Frequenza relativa congiunta SpacialCharRatioInURL")
+
+# DISPERSION
+var(df$SpacialCharRatioInURL)
+sd(df$SpacialCharRatioInURL)
+
+# CORRELATION WITH SIMILAR FEATURE
+cor(df$SpacialCharRatioInURL, df$NoOfSpecialCharsInURL)
+
+# CORRELATION
+cor(df$SpacialCharRatioInURL, df$label)
+
+df <- subset(df, select = -SpacialCharRatioInURL)
+#-------------------------------------------------------------------------------
 # TODO: study correlations with label 
