@@ -1583,4 +1583,156 @@ cor(df$SpacialCharRatioInURL, df$label)
 
 df <- subset(df, select = -SpacialCharRatioInURL)
 #-------------------------------------------------------------------------------
+# ATTRIBUTE IsHTTPS
+
+summary(df$IsHTTPS)
+
+j_freq <- table(df$label, df$IsHTTPS)
+j_freq_rel <- prop.table(j_freq)
+j_freq_rel
+
+# DISPERSION
+var(df$IsHTTPS)
+sd(df$IsHTTPS)
+
+barplot(j_freq_rel, col = c("orange", "lightblue"),
+        legend = c("phishing", "legitimate"),
+        main = "Frequenza relativa congiunta IsHTTPS")
+
+cor(df$IsHTTPS, df$label)
+#-------------------------------------------------------------------------------
+# ATTRIBUTE LineOfCode
+
+summary(df$LineOfCode)
+
+breaks = c(0, 2, 12, 50, 100, 1000, 210.000)
+
+labels = c("(1,2]", "(2,12]", "(12, 50]", "(50, 100]", "(100, 1000]", 
+           "(1000, 210k]")
+
+j_freq <- table(df$label, cut(df$LineOfCode, breaks = breaks, labels = labels))
+j_freq_rel <- prop.table(j_freq)
+j_freq_rel
+
+barplot(j_freq_rel, col = c("orange", "lightblue"),
+        legend = c("phishing", "legitimate"),
+        main = "Frequenza relativa congiunta LineOfCode")
+
+#DISPERSION
+var(df$LineOfCode)
+sd(df$LineOfCode)
+
+# OUTLIERS
+summary(df_0$LineOfCode)
+summary(df_1$LineOfCode)
+
+boxplot(df_0$LineOfCode, df_1$LineOfCode,
+        main = 'Boxplot LineOfCode', col = c('orange', 'lightblue'),
+        ylim = c(min(df_0$LineOfCode), quantile(df_1$LineOfCode, 0.75)),
+        names = c('phishing', 'legitimate'))
+
+# IQR FOR 'LineOfCode'
+q1 <- quantile(df$LineOfCode, 0.25)
+q3 <- quantile(df$LineOfCode, 0.75)
+iqr <- q3 - q1
+
+lower_bound <- q1 - 1.5 * iqr
+upper_bound <- q3 + 1.5 * iqr
+
+outliers <- sum(df$LineOfCode < lower_bound | df$LineOfCode > upper_bound)
+outliers
+
+# IQR FOR 'Phishing'
+q1_0 <- quantile(df_0$LineOfCode, 0.25)
+q3_0 <- quantile(df_0$LineOfCode, 0.75)
+iqr_0 <- q3_0 - q1_0
+
+lower_bound_0 <- q1_0 - 1.5 * iqr_0
+upper_bound_0 <- q3_0 + 1.5 * iqr_0
+
+outliers_0 <- sum(df_0$LineOfCode < lower_bound_0 | df_0$LineOfCode > upper_bound_0)
+
+# IQR FOR 'Legitimate'
+q1_1 <- quantile(df_1$LineOfCode, 0.25)
+q3_1 <- quantile(df_1$LineOfCode, 0.75)
+iqr_1 <- q3_1 - q1_1
+
+lower_bound_1 <- q1_1 - 1.5 * iqr_1
+upper_bound_1 <- q3_1 + 1.5 * iqr_1
+
+outliers_1 <- sum(df_1$LineOfCode < lower_bound_1 | df_1$LineOfCode > upper_bound_1)
+
+outliers_0  
+outliers_1
+
+# DISTRIBUTION FORM
+skw_value <- skewness(df$LineOfCode)       # (gamma > 0) right skewed
+kurtosis_value <- kurtosis(df$LineOfCode)  # leptokurtic
+skw_value
+kurtosis_value
+
+n <- length(df$LineOfCode)
+h_sturges <- (max(df$LineOfCode) - min(df$LineOfCode)) / sqrt(n)
+density_sturges <- density(df$LineOfCode, bw = h_sturges)
+
+plot(density_sturges, main = "Distribuzione LineOfCode", 
+     col = "orange", lwd = 2, xlab = 'LineOfCode')
+legend("topright", legend = c(paste("Skewness:", round(skw_value, 2)), 
+                              paste("Kurtosis:", round(kurtosis_value, 2))), 
+       bty = "n", col = "black", cex = 0.8)
+
+# DISTRIBUTION FORM FOR Phishing AND Legitimate
+skw_value_0 <- skewness(df_0$LineOfCode)
+kurtosis_value_0 <- kurtosis(df_0$LineOfCode)
+
+skw_value_1 <- skewness(df_1$LineOfCode)
+kurtosis_value_1 <- kurtosis(df_1$LineOfCode)
+
+n <- length(df_0$LineOfCode)
+h_sturges <- (max(df_0$LineOfCode) - min(df_0$LineOfCode)) / sqrt(n)
+density_0 <- density(df_0$LineOfCode, bw = h_sturges)
+
+n <- length(df_1$LineOfCode)
+h_sturges <- (max(df_1$LineOfCode) - min(df_1$LineOfCode)) / sqrt(n)
+density_1 <- density(df_1$LineOfCode, bw = h_sturges, to=30000)
+
+# 1 row, 2 columns
+par(mfrow = c(1, 2))  
+
+# phishing
+plot(density_0, main = "phishing",
+     col = "orange", lwd = 2, xlab = "LineOfCode", ylab = "Density",
+     ylim = c(0, max(density_0$y)))
+legend("topright", 
+       legend = c(paste("Skewness:", round(skw_value_0, 2)), 
+                  paste("Kurtosis:", round(kurtosis_value_0, 2))), 
+       col = "orange", lwd = 2, bty = "n", cex = 0.8)
+
+# legitimate
+plot(density_1, main = "legitimate",
+     col = "lightblue", lwd = 2, xlab = "LineOfCode", ylab = "Density",
+     ylim = c(0, max(density_1$y)))
+legend("topright", 
+       legend = c(paste("Skewness:", round(skw_value_1, 2)), 
+                  paste("Kurtosis:", round(kurtosis_value_1, 2))), 
+       col = "lightblue", lwd = 2, bty = "n", cex = 0.8)
+
+# reset plot layout
+par(mfrow = c(1, 1))
+
+# CORRELATION
+cor(df$LineOfCode, df$label)
+#-------------------------------------------------------------------------------
+# ATTRIBUTE LargestLineLength
+
+summary(df$LargestLineLength)
+
+# OUTLIERS
+summary(df_0$LargestLineLength)
+summary(df_1$LargestLineLength)
+
+var(df$LargestLineLength)
+
+cor(df$LargestLineLength, df$label)
+
 # TODO: study correlations with label 
