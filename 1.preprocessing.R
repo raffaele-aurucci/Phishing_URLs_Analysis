@@ -50,9 +50,16 @@ options(scipen = 999)
 
 table(df$label)
 
+# # Count values > 100k in LargestLineLength
+# count_above_100k <- sum(df$LargestLineLength > 100000, na.rm = TRUE)
+# count_above_100k
+# 
+# # Remove values > 100k in LargestLineLength
+# df <- df[df$LargestLineLength <= 100000 | is.na(df$LargestLineLength), ]
+
 # undersampling to balance dataset
 indices_label_1 <- which(df$label == 1)
-indices_to_remove <- sample(indices_label_1, 3427)
+indices_to_remove <- sample(indices_label_1, 3671) # 3424
 df <- df[-indices_to_remove, ]
 row.names(df) <- NULL
 
@@ -240,6 +247,7 @@ par(mfrow = c(1, 1))
 
 # CORRELATION WITH TARGET
 cor(df$TLDEncoding, df$label)
+cor(df$TLDEncoding, df$label, method = 'spearman')
 
 # ------------------------------------------------------------------------------
 # ATTRIBUTE 'URLLenght'
@@ -378,6 +386,7 @@ par(mfrow = c(1, 1))
 
 # CORRELATION WITH TARGET
 cor(df$URLLength, df$label)
+cor(df$URLLength, df$label, method = 'spearman')
 
 # ------------------------------------------------------------------------------
 # ATTRIBUTE 'DomainLenght'
@@ -511,12 +520,14 @@ par(mfrow = c(1, 1))
 
 # CORRELATION WITH TARGET
 cor(df$DomainLength, df$label)
+cor(df$DomainLength, df$label, method = 'spearman')
 # ------------------------------------------------------------------------------
 # ATTRIBUTE 'IsDomainIP'
 
 table(df$IsDomainIP)
 
 cor(df$IsDomainIP, df$label)
+cor(df$IsDomainIP, df$label, method = 'spearman')
 
 # delete attribute because have only 81 value setting to 1
 df <- subset(df, select = -IsDomainIP)
@@ -550,6 +561,7 @@ sd(df$URLSimilarityIndex)
 
 # CORRELATIONS WITH TARGET: ~0.85
 cor(df$URLSimilarityIndex, df$label)
+cor(df$URLSimilarityIndex, df$label, method = 'spearman')
 
 # delete this feature because:
 # It's an heuristic calculated by authors of dataset
@@ -696,6 +708,7 @@ par(mfrow = c(1, 1))
 
 # CORRELATION WITH TARGET
 cor(df$URLTitleMatchScore, df$label)
+cor(df$URLTitleMatchScore, df$label, method = 'spearman')
 #-------------------------------------------------------------------------------
 # ATTRIBUTE 'DomainTitleMatchScore'
 
@@ -811,6 +824,7 @@ par(mfrow = c(1, 1))
 
 # CORRELATION WITH TARGET
 cor(df$DomainTitleMatchScore, df$label)
+cor(df$DomainTitleMatchScore, df$label, method = 'spearman')
 
 # TODO: study correlation with URLTitleMatchScore
 #-------------------------------------------------------------------------------
@@ -892,6 +906,7 @@ par(mfrow = c(1, 1))
 
 # CORRELATION WITH TARGET
 cor(df$TLDLength, df$label)
+cor(df$TLDLength, df$label, method = 'spearman')
 
 # delete this feature becasue has lower variance, overlap median and corr = 0
 
@@ -970,6 +985,7 @@ par(mfrow = c(1, 1))
 
 # CORRELATION WITH TARGET
 cor(df$NoOfSubDomain, df$label)
+cor(df$NoOfSubDomain, df$label, method = 'spearman')
 
 df <- subset(df, select = -NoOfSubDomain)
 #-------------------------------------------------------------------------------
@@ -979,6 +995,7 @@ table(df$HasObfuscation)
 
 # CORRELATION WITH TARGET
 cor(df$HasObfuscation, df$label)
+cor(df$HasObfuscation, df$label, method = 'spearman')
 
 df <- subset(df, select = -HasObfuscation)
 #-------------------------------------------------------------------------------
@@ -995,6 +1012,7 @@ sd(df$NoOfObfuscatedChar)
 
 # CORRELATION WITH TARGET
 cor(df$NoOfObfuscatedChar, df$label)
+cor(df$NoOfObfuscatedChar, df$label, method = 'spearman')
 
 df <- subset(df, select = -NoOfObfuscatedChar)
 #-------------------------------------------------------------------------------
@@ -1013,6 +1031,7 @@ sd(df$ObfuscationRatio)
 
 # CORRELATION WITH TARGET
 cor(df$ObfuscationRatio, df$label)
+cor(df$ObfuscationRatio, df$label, method = 'spearman')
 
 df <- subset(df, select = -ObfuscationRatio)
 #-------------------------------------------------------------------------------
@@ -1144,6 +1163,7 @@ par(mfrow = c(1, 1))
 
 # CORRELATION WITH TARGET
 cor(df$NoOfLettersInURL, df$label)
+cor(df$NoOfLettersInURL, df$label, method = 'spearman')
 
 #-------------------------------------------------------------------------------
 # Attribute LetterRatioInURL
@@ -1159,6 +1179,7 @@ sd(df$LetterRatioInURL)
 
 # CORRELATION WITH TARGET
 cor(df$LetterRatioInURL, df$label)
+cor(df$LetterRatioInURL, df$label, method = 'spearman')
 
 # delete this feature because has less variance than NoLettersInURL
 df <- subset(df, select = -LetterRatioInURL)
@@ -1290,6 +1311,7 @@ par(mfrow = c(1, 1))
 
 # CORRELATION WITH TARGET
 cor(df$NoOfDegitsInURL, df$label)
+cor(df$NoOfDegitsInURL, df$label, method = 'spearman')
 
 #-------------------------------------------------------------------------------
 # ATTRIBUTE DegitRatioInURL
@@ -1305,6 +1327,7 @@ cor(df$DegitRatioInURL, df$NoOfDegitsInURL)
 
 # CORRELATION WITH TARGET
 cor(df$DegitRatioInURL, df$label)
+cor(df$DegitRatioInURL, df$label, method = 'spearman')
 
 # delete this feature because has less variance than NoOfDigitsInURL
 df <- subset(df, select = -DegitRatioInURL)
@@ -1331,6 +1354,7 @@ sd(df$NoOfEqualsInURL)
 
 # CORRELATION
 cor(df$NoOfEqualsInURL, df$label)
+cor(df$NoOfEqualsInURL, df$label, method = 'spearman')
 
 # df <- subset(df, select = -NoOfEqualsInURL)
 #-------------------------------------------------------------------------------
@@ -1352,6 +1376,7 @@ sd(df$NoOfQMarkInURL)
 
 # CORRELATION
 cor(df$NoOfQMarkInURL, df$label)
+cor(df$NoOfQMarkInURL, df$label, method = 'spearman')
 
 # df <- subset(df, select = -NoOfQMarkInURL)
 #-------------------------------------------------------------------------------
@@ -1370,6 +1395,7 @@ sd(df$NoOfAmpersandInURL)
 
 # CORRELATION
 cor(df$NoOfAmpersandInURL, df$label)
+cor(df$NoOfAmpersandInURL, df$label, method = 'spearman')
 
 # df <- subset(df, select = -NoOfAmpersandInURL)
 #-------------------------------------------------------------------------------
@@ -1396,6 +1422,7 @@ sd(df$NoOfOtherSpecialCharsInURL)
 
 # CORRELATION
 cor(df$NoOfOtherSpecialCharsInURL, df$label)
+cor(df$NoOfOtherSpecialCharsInURL, df$label, method = 'spearman')
 
 # Create a new feature 'NoOfSpecialCharsInURL' that aggregate the value of:
 # - NoOfOtherSpecialCharsInURL
@@ -1554,6 +1581,7 @@ par(mfrow = c(1, 1))
 
 # CORRELATION
 cor(df$NoOfSpecialCharsInURL, df$label)
+cor(df$NoOfSpecialCharsInURL, df$label, method = 'spearman')
 #-------------------------------------------------------------------------------
 # ATTRIBUTE SpecialCharRatioInURL
 
@@ -1580,6 +1608,7 @@ cor(df$SpacialCharRatioInURL, df$NoOfSpecialCharsInURL)
 
 # CORRELATION
 cor(df$SpacialCharRatioInURL, df$label)
+cor(df$SpacialCharRatioInURL, df$label, method = 'spearman')
 
 df <- subset(df, select = -SpacialCharRatioInURL)
 #-------------------------------------------------------------------------------
@@ -1599,7 +1628,9 @@ barplot(j_freq_rel, col = c("orange", "lightblue"),
         legend = c("phishing", "legitimate"),
         main = "Frequenza relativa congiunta IsHTTPS")
 
+# CORRELATION
 cor(df$IsHTTPS, df$label)
+cor(df$IsHTTPS, df$label, method = 'spearman')
 #-------------------------------------------------------------------------------
 # ATTRIBUTE LineOfCode
 
@@ -1722,17 +1753,163 @@ par(mfrow = c(1, 1))
 
 # CORRELATION
 cor(df$LineOfCode, df$label)
+cor(df$LineOfCode, df$label, method = 'spearman')
 #-------------------------------------------------------------------------------
 # ATTRIBUTE LargestLineLength
 
 summary(df$LargestLineLength)
 
+# Substitute value > 100k arbitrarily with 100k
+df$LargestLineLength[df$LargestLineLength > 100000] <- 100000
+
+# update df_0 and df_1
+df_0 <- df[df$label == 0, ]
+df_1 <- df[df$label == 1, ]
+
+breaks <- c(0, 50, 100, 150, 500, 1000, 5000, 20000, 100000)
+labels <- c("(0,50]", "(50,100]", "(100,150]", "(150,500]", 
+            "(500,1k]", "(1k,5k]", "(5k,20k]", "(20k,100k]")
+
+j_freq <- table(df$label, cut(df$LargestLineLength, breaks = breaks, labels = labels,
+                              include.lowest = TRUE))
+
+j_freq_rel <- prop.table(j_freq)
+j_freq_rel
+
+barplot(j_freq_rel, col = c("orange", "lightblue"),
+        legend = c("phishing", "legitimate"),
+        main = "Frequenza relativa congiunta LargestLineLength")
+
 # OUTLIERS
 summary(df_0$LargestLineLength)
 summary(df_1$LargestLineLength)
 
+boxplot(df_0$LargestLineLength, df_1$LargestLineLength,
+        main = 'Boxplot LargestLineLength', col = c('orange', 'lightblue'),
+        ylim = c(min(df_0$LargestLineLength), quantile(df_1$LargestLineLength, 0.95)),
+        names = c('phishing', 'legitimate'))
+
+
+# IQR FOR 'LargestLineLength'
+q1 <- quantile(df$LargestLineLength, 0.25)
+q3 <- quantile(df$LargestLineLength, 0.75)
+iqr <- q3 - q1
+
+lower_bound <- q1 - 1.5 * iqr
+upper_bound <- q3 + 1.5 * iqr
+
+outliers <- sum(df$LargestLineLength < lower_bound | df$LargestLineLength > upper_bound)
+outliers
+
+# IQR FOR 'Phishing'
+q1_0 <- quantile(df_0$LargestLineLength, 0.25)
+q3_0 <- quantile(df_0$LargestLineLength, 0.75)
+iqr_0 <- q3_0 - q1_0
+
+lower_bound_0 <- q1_0 - 1.5 * iqr_0
+upper_bound_0 <- q3_0 + 1.5 * iqr_0
+
+outliers_0 <- sum(df_0$LargestLineLength < lower_bound_0 | df_0$LargestLineLength > upper_bound_0)
+
+# IQR FOR 'Legitimate'
+q1_1 <- quantile(df_1$LargestLineLength, 0.25)
+q3_1 <- quantile(df_1$LargestLineLength, 0.75)
+iqr_1 <- q3_1 - q1_1
+
+lower_bound_1 <- q1_1 - 1.5 * iqr_1
+upper_bound_1 <- q3_1 + 1.5 * iqr_1
+
+outliers_1 <- sum(df_1$LargestLineLength < lower_bound_1 | df_1$LargestLineLength > upper_bound_1)
+
+outliers_0  
+outliers_1
+
+# DISPERSION
 var(df$LargestLineLength)
+sd(df$LargestLineLength)
 
+# DISTRIBUTION FORM
+skw_value <- skewness(df$LargestLineLength)       # (gamma > 0) right skewed
+kurtosis_value <- kurtosis(df$LargestLineLength)  # leptokurtic
+skw_value
+kurtosis_value
+
+n <- length(df$LargestLineLength)
+h_sturges <- (max(df$LargestLineLength) - min(df$LargestLineLength)) / sqrt(n)
+density_sturges <- density(df$LargestLineLength, bw = h_sturges)
+
+plot(density_sturges, main = "Distribuzione LargestLineLength", 
+     col = "orange", lwd = 2, xlab = 'LineOfCode')
+legend("topright", legend = c(paste("Skewness:", round(skw_value, 2)), 
+                              paste("Kurtosis:", round(kurtosis_value, 2))), 
+       bty = "n", col = "black", cex = 0.8)
+
+# DISTRIBUTION FORM FOR Phishing AND Legitimate
+skw_value_0 <- skewness(df_0$LargestLineLength)
+kurtosis_value_0 <- kurtosis(df_0$LargestLineLength)
+
+skw_value_1 <- skewness(df_1$LargestLineLength)
+kurtosis_value_1 <- kurtosis(df_1$LargestLineLength)
+
+n <- length(df_0$LargestLineLength)
+h_sturges <- (max(df_0$LargestLineLength) - min(df_0$LargestLineLength)) / sqrt(n)
+density_0 <- density(df_0$LargestLineLength, bw = h_sturges)
+
+n <- length(df_1$LargestLineLength)
+h_sturges <- (max(df_1$LargestLineLength) - min(df_1$LargestLineLength)) / sqrt(n)
+density_1 <- density(df_1$LargestLineLength, bw = h_sturges)
+
+# 1 row, 2 columns
+par(mfrow = c(1, 2))  
+
+# phishing
+plot(density_0, main = "phishing",
+     col = "orange", lwd = 2, xlab = "LargestLineLength", ylab = "Density",
+     ylim = c(0, max(density_0$y)))
+legend("topright", 
+       legend = c(paste("Skewness:", round(skw_value_0, 2)), 
+                  paste("Kurtosis:", round(kurtosis_value_0, 2))), 
+       col = "orange", lwd = 2, bty = "n", cex = 0.8)
+
+# legitimate
+plot(density_1, main = "legitimate",
+     col = "lightblue", lwd = 2, xlab = "LargestLineLength", ylab = "Density",
+     ylim = c(0, max(density_1$y)))
+legend("topright", 
+       legend = c(paste("Skewness:", round(skw_value_1, 2)), 
+                  paste("Kurtosis:", round(kurtosis_value_1, 2))), 
+       col = "lightblue", lwd = 2, bty = "n", cex = 0.8)
+
+# reset plot layout
+par(mfrow = c(1, 1))
+
+# CORRELATION WITH TARGET
 cor(df$LargestLineLength, df$label)
+cor(df$LargestLineLength, df$label, method = 'spearman')
+#-------------------------------------------------------------------------------
+# ATTRIBUTE HasTitle
 
-# TODO: study correlations with label 
+summary(df$HasTitle)
+
+j_freq <- table(df$label, df$HasTitle)
+j_freq_rel <- prop.table(j_freq)
+j_freq_rel
+
+# DISPERSION
+var(df$HasTitle)
+sd(df$HasTitle)
+
+barplot(j_freq_rel, col = c("orange", "lightblue"),
+        legend = c("phishing", "legitimate"),
+        main = "Frequenza relativa congiunta HasTitle")
+
+# CORRELATION
+cor(df$HasTitle, df$label)
+cor(df$HasTitle, df$label, method = 'spearman')
+#-------------------------------------------------------------------------------
+# ATTRIBUTE Title
+
+# delete attribute because have only unique value
+df <- subset(df, select = -Title)
+
+# TODO: INSERT CORRPLOT with label 
