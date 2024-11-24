@@ -1911,5 +1911,569 @@ cor(df$HasTitle, df$label, method = 'spearman')
 
 # delete attribute because have only unique value
 df <- subset(df, select = -Title)
+#-------------------------------------------------------------------------------
+# ATTRIBUTE HasFavicon
 
+summary(df$HasFavicon)
+
+j_freq <- table(df$label, df$HasFavicon)
+j_freq_rel <- prop.table(j_freq)
+j_freq_rel
+
+# DISPERSION
+var(df$HasTitle)
+sd(df$HasTitle)
+
+barplot(j_freq_rel, beside=TRUE, col = c("orange", "lightblue"),
+        legend = c("phishing", "legitimate"),
+        main = "Frequenza relativa congiunta HasFavicon")
+
+# CORRELATION
+cor(df$HasFavicon, df$label)
+cor(df$HasFavicon, df$label, method = 'spearman')
+#-------------------------------------------------------------------------------
+# ATTRIBUTE Robots
+
+summary(df$Robots)
+
+j_freq <- table(df$label, df$Robots)
+j_freq_rel <- prop.table(j_freq)
+j_freq_rel
+
+# DISPERSION
+var(df$Robots)
+sd(df$Robots)
+
+barplot(j_freq_rel, beside=TRUE, col = c("orange", "lightblue"),
+        legend = c("phishing", "legitimate"),
+        main = "Frequenza relativa congiunta Robots")
+
+# CORRELATION
+cor(df$Robots, df$label)
+cor(df$Robots, df$label, method = 'spearman')
+#-------------------------------------------------------------------------------
+# ATTRIBUTE IsResponsive
+
+summary(df$IsResponsive)
+
+j_freq <- table(df$label, df$IsResponsive)
+j_freq_rel <- prop.table(j_freq)
+j_freq_rel
+
+# DISPERSION
+var(df$IsResponsive)
+sd(df$IsResponsive)
+
+barplot(j_freq_rel, beside=TRUE, col = c("orange", "lightblue"),
+        legend = c("phishing", "legitimate"),
+        main = "Frequenza relativa congiunta IsResponsive")
+
+# CORRELATION
+cor(df$IsResponsive, df$label)
+cor(df$IsResponsive, df$label, method = 'spearman')
+#-------------------------------------------------------------------------------
+# ATTRIBUTE NoOfURLRedirect
+
+summary(df$NoOfURLRedirect)
+
+j_freq <- table(df$label, df$NoOfURLRedirect)
+j_freq_rel <- prop.table(j_freq)
+j_freq_rel
+
+# DISPERSION
+var(df$NoOfURLRedirect)
+sd(df$NoOfURLRedirect)
+
+barplot(j_freq_rel, beside=TRUE, col = c("orange", "lightblue"),
+        legend = c("phishing", "legitimate"),
+        main = "Frequenza relativa congiunta NoOfURLRedirect")
+
+# CORRELATION
+cor(df$NoOfURLRedirect, df$label)
+cor(df$NoOfURLRedirect, df$label, method = 'spearman')
+
+# delete attribute because has 95% of data is setting to 0
+df <- subset(df, select = -NoOfURLRedirect)
+#-------------------------------------------------------------------------------
+# ATTRIBUTE NoOfSelfRedirect
+
+summary(df$NoOfSelfRedirect)
+
+j_freq <- table(df$label, df$NoOfSelfRedirect)
+j_freq_rel <- prop.table(j_freq)
+j_freq_rel
+
+# DISPERSION
+var(df$NoOfSelfRedirect)
+sd(df$NoOfSelfRedirect)
+
+barplot(j_freq_rel, beside=TRUE, col = c("orange", "lightblue"),
+        legend = c("phishing", "legitimate"),
+        main = "Frequenza relativa congiunta NoOfSelfRedirect")
+
+# CORRELATION
+cor(df$NoOfSelfRedirect, df$label)
+cor(df$NoOfSelfRedirect, df$label, method = 'spearman')
+
+# delete attribute because has 96% of data is setting to 0
+df <- subset(df, select = -NoOfSelfRedirect)
+#-------------------------------------------------------------------------------
+# ATTRIBUTE HasDescription
+
+summary(df$HasDescription)
+
+j_freq <- table(df$label, df$HasDescription)
+j_freq_rel <- prop.table(j_freq)
+j_freq_rel
+
+# DISPERSION
+var(df$HasDescription)
+sd(df$HasDescription)
+
+barplot(j_freq_rel, beside=TRUE, col = c("orange", "lightblue"),
+        legend = c("phishing", "legitimate"),
+        main = "Frequenza relativa congiunta HasDescription")
+
+# CORRELATION
+cor(df$HasDescription, df$label)
+cor(df$HasDescription, df$label, method = 'spearman')
+#-------------------------------------------------------------------------------
+# ATTRIBUTE NoOfPopup
+
+summary(df$NoOfPopup)
+
+j_freq <- table(df$label, cut(df$NoOfPopup, breaks = c(-Inf, 0, 396), labels = c("0", "(0, 396]")))
+j_freq_rel <- prop.table(j_freq)
+j_freq_rel
+
+barplot(j_freq_rel, beside=TRUE, col = c("orange", "lightblue"),
+        legend = c("phishing", "legitimate"),
+        main = "Frequenza relativa congiunta NoOfPopup")
+
+# DISPERSION
+var(df$NoOfPopup)
+sd(df$NoOfPopup)
+
+# CORRELATION
+cor(df$NoOfPopup, df$label)
+cor(df$NoOfPopup, df$label, method = 'spearman')
+
+# delete attribute because has 96% of data is setting to 0
+df <- subset(df, select = -NoOfPopup)
+#-------------------------------------------------------------------------------
+# ATTRIBUTE NoOfiFrame - DELETE???
+
+summary(df$NoOfiFrame)
+
+j_freq <- table(df$label, cut(df$NoOfiFrame, breaks = c(-Inf, 0, 10, 172), 
+                              labels = c("0", "(0, 10]", "(10, 172]")))
+j_freq_rel <- prop.table(j_freq)
+j_freq_rel
+
+# DISPERSION
+var(df$NoOfiFrame)
+sd(df$NoOfiFrame)
+
+barplot(j_freq_rel, beside=TRUE, col = c("orange", "lightblue"),
+        legend = c("phishing", "legitimate"),
+        main = "Frequenza relativa congiunta NoOfiFrame")
+
+# OUTLIERS
+summary(df_0$NoOfiFrame)
+summary(df_1$NoOfiFrame)
+
+boxplot(df_0$NoOfiFrame, df_1$NoOfiFrame,
+        main = 'Boxplot NoOfiFrame', col = c('orange', 'lightblue'),
+        ylim = c(min(df_0$NoOfiFrame), quantile(df_1$NoOfiFrame, 0.99)),
+        names = c('phishing', 'legitimate'))
+
+# IQR FOR 'NoOfiFrame'
+q1 <- quantile(df$NoOfiFrame, 0.25)
+q3 <- quantile(df$NoOfiFrame, 0.75)
+iqr <- q3 - q1
+
+lower_bound <- q1 - 1.5 * iqr
+upper_bound <- q3 + 1.5 * iqr
+
+outliers <- sum(df$NoOfiFrame < lower_bound | df$NoOfiFrame > upper_bound)
+outliers
+
+# IQR FOR 'Phishing'
+q1_0 <- quantile(df_0$NoOfiFrame, 0.25)
+q3_0 <- quantile(df_0$NoOfiFrame, 0.75)
+iqr_0 <- q3_0 - q1_0
+
+lower_bound_0 <- q1_0 - 1.5 * iqr_0
+upper_bound_0 <- q3_0 + 1.5 * iqr_0
+
+outliers_0 <- sum(df_0$NoOfiFrame < lower_bound_0 | df_0$NoOfiFrame > upper_bound_0)
+
+# IQR FOR 'Legitimate'
+q1_1 <- quantile(df_1$NoOfiFrame, 0.25)
+q3_1 <- quantile(df_1$NoOfiFrame, 0.75)
+iqr_1 <- q3_1 - q1_1
+
+lower_bound_1 <- q1_1 - 1.5 * iqr_1
+upper_bound_1 <- q3_1 + 1.5 * iqr_1
+
+outliers_1 <- sum(df_1$NoOfiFrame < lower_bound_1 | df_1$NoOfiFrame > upper_bound_1)
+
+outliers_0
+outliers_1
+
+# DISTRIBUTION FORM
+skw_value <- skewness(df$NoOfiFrame)       # (gamma > 0) right skewed
+kurtosis_value <- kurtosis(df$NoOfiFrame)  # leptokurtic
+skw_value
+kurtosis_value
+
+n <- length(df$NoOfiFrame)
+h_sturges <- (max(df$NoOfiFrame) - min(df$NoOfiFrame)) / sqrt(n)
+density_sturges <- density(df$NoOfiFrame, bw = h_sturges)
+
+plot(density_sturges, main = "Distribuzione NoOfiFrame",
+     col = "orange", lwd = 2, xlab = 'NoOfiFrame')
+legend("topright", legend = c(paste("Skewness:", round(skw_value, 2)),
+                              paste("Kurtosis:", round(kurtosis_value, 2))),
+       bty = "n", col = "black", cex = 0.8)
+
+# DISTRIBUTION FORM FOR Phishing AND Legitimate
+skw_value_0 <- skewness(df_0$NoOfiFrame)
+kurtosis_value_0 <- kurtosis(df_0$NoOfiFrame)
+
+skw_value_1 <- skewness(df_1$NoOfiFrame)
+kurtosis_value_1 <- kurtosis(df_1$NoOfiFrame)
+
+n <- length(df_0$NoOfiFrame)
+h_sturges <- (max(df_0$NoOfiFrame) - min(df_0$NoOfiFrame)) / sqrt(n)
+density_0 <- density(df_0$NoOfiFrame, bw = h_sturges)
+
+n <- length(df_1$NoOfiFrame)
+h_sturges <- (max(df_1$NoOfiFrame) - min(df_1$NoOfiFrame)) / sqrt(n)
+density_1 <- density(df_1$NoOfiFrame, bw = h_sturges, to=50)
+
+# 1 row, 2 columns
+par(mfrow = c(1, 2))
+
+# phishing
+plot(density_0, main = "phishing",
+     col = "orange", lwd = 2, xlab = "NoOfiFrame", ylab = "Density",
+     ylim = c(0, max(density_0$y)))
+legend("topright",
+       legend = c(paste("Skewness:", round(skw_value_0, 2)),
+                  paste("Kurtosis:", round(kurtosis_value_0, 2))),
+       col = "orange", lwd = 2, bty = "n", cex = 0.8)
+
+# legitimate
+plot(density_1, main = "legitimate",
+     col = "lightblue", lwd = 2, xlab = "NoOfiFrame", ylab = "Density",
+     ylim = c(0, max(density_1$y)))
+legend("topright",
+       legend = c(paste("Skewness:", round(skw_value_1, 2)),
+                  paste("Kurtosis:", round(kurtosis_value_1, 2))),
+       col = "lightblue", lwd = 2, bty = "n", cex = 0.8)
+
+# reset plot layout
+par(mfrow = c(1, 1))
+
+# CORRELATION
+cor(df$NoOfiFrame, df$label)
+cor(df$NoOfiFrame, df$label, method = 'spearman')
+#-------------------------------------------------------------------------------
+# ATTRIBUTE HasExternalFormSubmit 
+
+summary(df$HasExternalFormSubmit)
+
+j_freq <- table(df$label, df$HasExternalFormSubmit)
+j_freq_rel <- prop.table(j_freq)
+j_freq_rel
+
+# DISPERSION
+var(df$HasExternalFormSubmit)
+sd(df$HasExternalFormSubmit)
+
+barplot(j_freq_rel, beside=TRUE, col = c("orange", "lightblue"),
+        legend = c("phishing", "legitimate"),
+        main = "Frequenza relativa congiunta HasExternalFormSubmit")
+
+# CORRELATION
+cor(df$HasExternalFormSubmit, df$label)
+cor(df$HasExternalFormSubmit, df$label, method = 'spearman')
+
+# delete attribute because has 96% of data is setting to 0
+df <- subset(df, select = -HasExternalFormSubmit)
+#-------------------------------------------------------------------------------
+# ATTRIBUTE HasSocialNet
+
+summary(df$HasSocialNet)
+
+j_freq <- table(df$label, df$HasSocialNet)
+j_freq_rel <- prop.table(j_freq)
+j_freq_rel
+
+# DISPERSION
+var(df$HasSocialNet)
+sd(df$HasSocialNet)
+
+barplot(j_freq_rel, beside=TRUE, col = c("orange", "lightblue"),
+        legend = c("phishing", "legitimate"),
+        main = "Frequenza relativa congiunta HasSocialNet")
+
+# CORRELATION
+cor(df$HasSocialNet, df$label)
+cor(df$HasSocialNet, df$label, method = 'spearman')
+#-------------------------------------------------------------------------------
+# ATTRIBUTE HasSubmitButton - DELETE???
+
+summary(df$HasSubmitButton)
+
+j_freq <- table(df$label, df$HasSubmitButton)
+j_freq_rel <- prop.table(j_freq)
+j_freq_rel
+
+# DISPERSION
+var(df$HasSubmitButton)
+sd(df$HasSubmitButton)
+
+barplot(j_freq_rel, beside=TRUE, col = c("orange", "lightblue"),
+        legend = c("phishing", "legitimate"),
+        main = "Frequenza relativa congiunta HasSubmitButton")
+
+# CORRELATION
+cor(df$HasSubmitButton, df$label)
+cor(df$HasSubmitButton, df$label, method = 'spearman')
+#-------------------------------------------------------------------------------
+# ATTRIBUTE HasHiddenFields - DELETE???
+
+summary(df$HasHiddenFields)
+
+j_freq <- table(df$label, df$HasHiddenFields)
+j_freq_rel <- prop.table(j_freq)
+j_freq_rel
+
+# DISPERSION
+var(df$HasHiddenFields)
+sd(df$HasHiddenFields)
+
+barplot(j_freq_rel, beside=TRUE, col = c("orange", "lightblue"),
+        legend = c("phishing", "legitimate"),
+        main = "Frequenza relativa congiunta HasHiddenFields")
+
+# CORRELATION
+cor(df$HasHiddenFields, df$label)
+cor(df$HasHiddenFields, df$label, method = 'spearman')
+#-------------------------------------------------------------------------------
+# ATTRIBUTE HasPasswordField
+
+summary(df$HasPasswordField)
+
+j_freq <- table(df$label, df$HasPasswordField)
+j_freq_rel <- prop.table(j_freq)
+j_freq_rel
+
+# DISPERSION
+var(df$HasPasswordField)
+sd(df$HasPasswordField)
+
+barplot(j_freq_rel, beside=TRUE, col = c("orange", "lightblue"),
+        legend = c("phishing", "legitimate"),
+        main = "Frequenza relativa congiunta HasPasswordField")
+
+# CORRELATION
+cor(df$HasPasswordField, df$label)
+cor(df$HasPasswordField, df$label, method = 'spearman')
+
+# delete attribute because has 90% of data is setting to 0
+df <- subset(df, select = -HasPasswordField)
+#-------------------------------------------------------------------------------
+# ATTRIBUTE Bank 
+
+summary(df$Bank)
+
+j_freq <- table(df$label, df$Bank)
+j_freq_rel <- prop.table(j_freq)
+j_freq_rel
+
+# DISPERSION
+var(df$Bank)
+sd(df$Bank)
+
+barplot(j_freq_rel, beside=TRUE, col = c("orange", "lightblue"),
+        legend = c("phishing", "legitimate"),
+        main = "Frequenza relativa congiunta Bank")
+
+# CORRELATION
+cor(df$Bank, df$label)
+cor(df$Bank, df$label, method = 'spearman')
+
+# delete attribute because has 90% of data is setting to 0
+df <- subset(df, select = -Bank)
+#-------------------------------------------------------------------------------
+# ATTRIBUTE Pay 
+
+summary(df$Pay)
+
+j_freq <- table(df$label, df$Pay)
+j_freq_rel <- prop.table(j_freq)
+j_freq_rel
+
+# DISPERSION
+var(df$Pay)
+sd(df$Pay)
+
+barplot(j_freq_rel, beside=TRUE, col = c("orange", "lightblue"),
+        legend = c("phishing", "legitimate"),
+        main = "Frequenza relativa congiunta Pay")
+
+# CORRELATION
+cor(df$Pay, df$label)
+cor(df$Pay, df$label, method = 'spearman')
+
+# delete attribute because has 78% of data is setting to 0
+df <- subset(df, select = -Pay)
+#-------------------------------------------------------------------------------
+# ATTRIBUTE Crypto
+
+summary(df$Crypto)
+
+j_freq <- table(df$label, df$Crypto)
+j_freq_rel <- prop.table(j_freq)
+j_freq_rel
+
+# DISPERSION
+var(df$Crypto)
+sd(df$Crypto)
+
+barplot(j_freq_rel, beside=TRUE, col = c("orange", "lightblue"),
+        legend = c("phishing", "legitimate"),
+        main = "Frequenza relativa congiunta Crypto")
+
+# CORRELATION
+cor(df$Crypto, df$label)
+cor(df$Crypto, df$label, method = 'spearman')
+
+# delete attribute because has 97% of data is setting to 0
+df <- subset(df, select = -Crypto)
+#-------------------------------------------------------------------------------
+# ATTRIBUTE HasCopyrightInfo - INCLUDE WITH HAS_SOCIAL_NET???
+
+summary(df$HasCopyrightInfo)
+
+j_freq <- table(df$label, df$HasCopyrightInfo)
+j_freq_rel <- prop.table(j_freq)
+j_freq_rel
+
+# DISPERSION
+var(df$HasCopyrightInfo)
+sd(df$HasCopyrightInfo)
+
+barplot(j_freq_rel, beside=TRUE, col = c("orange", "lightblue"),
+        legend = c("phishing", "legitimate"),
+        main = "Frequenza relativa congiunta HasCopyrightInfo")
+
+# CORRELATION
+cor(df$HasCopyrightInfo, df$label)
+cor(df$HasCopyrightInfo, df$label, method = 'spearman')
+#-------------------------------------------------------------------------------
+# ATTRIBUTE NoOfImage - DELETE???
+
+summary(df$NoOfImage)
+
+j_freq <- table(df$label, cut(df$NoOfImage, breaks = c(-Inf, 0, 10, 8956), 
+                              labels = c("0", "(0, 10]", "(10, 8956]")))
+j_freq_rel <- prop.table(j_freq)
+j_freq_rel
+
+# DISPERSION
+var(df$NoOfiFrame)
+sd(df$NoOfiFrame)
+
+barplot(j_freq_rel, beside=TRUE, col = c("orange", "lightblue"),
+        legend = c("phishing", "legitimate"),
+        main = "Frequenza relativa congiunta NoOfImage")
+#-------------------------------------------------------------------------------
+# ATTRIBUTE NoOfCSS - DELETE???
+
+summary(df$NoOfCSS)
+
+j_freq <- table(df$label, cut(df$NoOfCSS, breaks = c(-Inf, 0, 10, 35820), 
+                              labels = c("0", "(0, 10]", "(10, 35820]")))
+j_freq_rel <- prop.table(j_freq)
+j_freq_rel
+
+# DISPERSION
+var(df$NoOfCSS)
+sd(df$NoOfCSS)
+
+barplot(j_freq_rel, beside=TRUE, col = c("orange", "lightblue"),
+        legend = c("phishing", "legitimate"),
+        main = "Frequenza relativa congiunta NoOfCSS")
+#-------------------------------------------------------------------------------
+# ATTRIBUTE NoOfJS - DELETE???
+
+summary(df$NoOfJS)
+
+j_freq <- table(df$label, cut(df$NoOfJS, breaks = c(-Inf, 0, 10, 378), 
+                              labels = c("0", "(0, 10]", "(10, 378]")))
+j_freq_rel <- prop.table(j_freq)
+j_freq_rel
+
+# DISPERSION
+var(df$NoOfJS)
+sd(df$NoOfJS)
+
+barplot(j_freq_rel, beside=TRUE, col = c("orange", "lightblue"),
+        legend = c("phishing", "legitimate"),
+        main = "Frequenza relativa congiunta NoOfJS")
+#-------------------------------------------------------------------------------
+# ATTRIBUTE NoOfSelfRef - DELETE???
+
+summary(df$NoOfSelfRef)
+
+j_freq <- table(df$label, cut(df$NoOfSelfRef, breaks = c(-Inf, 0, 10, 19046), 
+                              labels = c("0", "(0, 10]", "(10, 19046]")))
+j_freq_rel <- prop.table(j_freq)
+j_freq_rel
+
+# DISPERSION
+var(df$NoOfSelfRef)
+sd(df$NoOfSelfRef)
+
+barplot(j_freq_rel, beside=TRUE, col = c("orange", "lightblue"),
+        legend = c("phishing", "legitimate"),
+        main = "Frequenza relativa congiunta NoOfSelfRef")
+#-------------------------------------------------------------------------------
+# ATTRIBUTE NoOfEmptyRef - DELETE???
+
+summary(df$NoOfEmptyRef)
+
+j_freq <- table(df$label, cut(df$NoOfEmptyRef, breaks = c(-Inf, 0, 10, 1336), 
+                              labels = c("0", "(0, 10]", "(10, 1336]")))
+j_freq_rel <- prop.table(j_freq)
+j_freq_rel
+
+# DISPERSION
+var(df$NoOfEmptyRef)
+sd(df$NoOfEmptyRef)
+
+barplot(j_freq_rel, beside=TRUE, col = c("orange", "lightblue"),
+        legend = c("phishing", "legitimate"),
+        main = "Frequenza relativa congiunta NoOfEmptyRef")
+#-------------------------------------------------------------------------------
+# ATTRIBUTE NoOfExternalRef - DELETE???
+
+summary(df$NoOfExternalRef)
+
+j_freq <- table(df$label, cut(df$NoOfExternalRef, breaks = c(-Inf, 0, 10, 19147), 
+                              labels = c("0", "(0, 10]", "(10, 19147]")))
+j_freq_rel <- prop.table(j_freq)
+j_freq_rel
+
+# DISPERSION
+var(df$NoOfExternalRef)
+sd(df$NoOfExternalRef)
+
+barplot(j_freq_rel, beside=TRUE, col = c("orange", "lightblue"),
+        legend = c("phishing", "legitimate"),
+        main = "Frequenza relativa congiunta NoOfExternalRef")
 # TODO: INSERT CORRPLOT with label 
